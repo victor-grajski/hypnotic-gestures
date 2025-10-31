@@ -4,7 +4,11 @@ import { useApp } from '../context/AppContext';
 export function ControlPanel() {
   const { state, dispatch, audioInitialized, initializeAudio } = useApp();
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
+    // Auto-initialize audio on first play
+    if (!audioInitialized && state.playbackState === 'paused') {
+      await initializeAudio();
+    }
     dispatch({
       type: 'UPDATE_PLAYBACK',
       payload: state.playbackState === 'playing' ? 'paused' : 'playing',
@@ -73,55 +77,37 @@ export function ControlPanel() {
             </span>
           )}
         </div>
-        {state.isRecording && (
+        {/* {state.isRecording && (
           <div className="flex items-center gap-2 text-destructive animate-pulse">
             <div className="w-3 h-3 rounded-full bg-destructive" />
             <span className="text-sm font-semibold">REC</span>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Playback Controls */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        {/* <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           Playback
-        </h3>
-        
-        {/* Audio Initialization Button */}
-        {!audioInitialized && (
-          <div className="bg-primary/10 border-2 border-primary rounded-lg p-4 space-y-2">
-            <p className="text-sm text-foreground text-center">
-              Click to enable audio
-            </p>
-            <button
-              onClick={initializeAudio}
-              className="w-full py-3 px-6 rounded-lg font-semibold text-lg bg-primary text-primary-foreground hover:opacity-90 transition-all"
-            >
-              🔊 Start Audio
-            </button>
-          </div>
-        )}
+        </h3> */}
         
         <div className="flex gap-3">
           <button
             onClick={handlePlayPause}
-            disabled={!audioInitialized}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-all ${
-              !audioInitialized
-                ? 'bg-secondary/50 text-secondary-foreground/50 cursor-not-allowed'
-                : state.playbackState === 'playing'
+              state.playbackState === 'playing'
                 ? 'bg-primary text-primary-foreground hover:opacity-90'
                 : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
             }`}
           >
             {state.playbackState === 'playing' ? '⏸ Pause' : '▶ Play'}
           </button>
-          <button
+          {/* <button
             onClick={handleReset}
             className="py-3 px-6 rounded-lg font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all"
           >
             🔄
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -180,7 +166,7 @@ export function ControlPanel() {
       </div>
 
       {/* Lock & Record Controls */}
-      <div className="space-y-3">
+      {/* <div className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           Options
         </h3>
@@ -216,10 +202,10 @@ export function ControlPanel() {
             {isItemSelected('recording') && <span className="ml-1 text-xs">✓</span>}
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Status Info */}
-      <div className="mt-auto pt-6 border-t border-border">
+      {/* <div className="mt-auto pt-6 border-t border-border">
         <div className="text-xs text-muted-foreground space-y-1">
           <div className="flex justify-between">
             <span>Status:</span>
@@ -260,7 +246,7 @@ export function ControlPanel() {
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

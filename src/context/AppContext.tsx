@@ -193,13 +193,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Sync playback state with audio engine
   useEffect(() => {
     const engine = audioEngineRef.current;
-    // Only play if audio has been initialized by user interaction
-    if (state.playbackState === 'playing' && audioInitialized) {
-      engine.play();
+    // Auto-initialize audio on first play attempt
+    if (state.playbackState === 'playing') {
+      if (!audioInitialized) {
+        // Initialize audio and then play
+        initializeAudio().then(() => {
+          engine.play();
+        });
+      } else {
+        engine.play();
+      }
     } else {
       engine.pause();
     }
-  }, [state.playbackState, audioInitialized]);
+  }, [state.playbackState, audioInitialized, initializeAudio]);
 
   // Sync instruments with audio engine (only after initialization)
   useEffect(() => {
