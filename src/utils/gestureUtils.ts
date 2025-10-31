@@ -3,12 +3,13 @@ import type { FrameThird, FrameQuadrant, HandLandmark, PositionInfo } from '../t
 /**
  * Determines which third of the frame the hand is in (left, center, right)
  * Based on the wrist landmark (index 0) x-position
+ * Note: x-coordinate is mirrored to match the mirrored video display
  */
 export function getFrameThird(landmarks: HandLandmark[]): FrameThird {
   if (!landmarks || landmarks.length === 0) return 'center';
   
   const wrist = landmarks[0];
-  const x = wrist.x;
+  const x = 1 - wrist.x; // Mirror x-coordinate to match video display
   
   if (x < 0.33) return 'left';
   if (x > 0.67) return 'right';
@@ -19,29 +20,26 @@ export function getFrameThird(landmarks: HandLandmark[]): FrameThird {
  * Determines which quadrant the hand is in (up, down, left, right)
  * Based on the wrist landmark position
  * Used primarily for Pointing_Up gesture navigation
+ * Note: Since horizontal position is already tracked by "third", 
+ * this focuses on vertical position (up/down) for most cases
+ * Note: y-coordinate appears to need adjustment to match visual display
  */
 export function getFrameQuadrant(landmarks: HandLandmark[]): FrameQuadrant {
   if (!landmarks || landmarks.length === 0) return 'up';
   
   const wrist = landmarks[0];
-  const x = wrist.x;
+  const x = 1 - wrist.x; // Mirror x-coordinate to match video display
   const y = wrist.y;
   
-  // Determine primary axis
-  const horizontalDistance = Math.abs(x - 0.5);
-  const verticalDistance = Math.abs(y - 0.5);
-  
-  if (horizontalDistance > verticalDistance) {
-    // Horizontal movement is dominant
-    return x < 0.5 ? 'left' : 'right';
-  } else {
-    // Vertical movement is dominant
-    return y < 0.5 ? 'up' : 'down';
-  }
+  // For general position tracking, focus on vertical position
+  // since horizontal is already covered by "third"
+  // Adjust threshold to match where the visual line appears at 50%
+  return y < 0.75 ? 'up' : 'down';
 }
 
 /**
  * Gets comprehensive position information for a set of landmarks
+ * Note: x-coordinate is mirrored to match the mirrored video display
  */
 export function getPositionInfo(landmarks: HandLandmark[]): PositionInfo {
   if (!landmarks || landmarks.length === 0) {
@@ -58,7 +56,7 @@ export function getPositionInfo(landmarks: HandLandmark[]): PositionInfo {
   return {
     third: getFrameThird(landmarks),
     quadrant: getFrameQuadrant(landmarks),
-    x: wrist.x,
+    x: 1 - wrist.x, // Mirror x-coordinate to match video display
     y: wrist.y,
   };
 }
