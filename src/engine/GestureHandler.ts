@@ -63,7 +63,7 @@ export class GestureHandler {
   }
 
   /**
-   * Closed_Fist: Layer 1 = Enter panel, Layer 2 = Toggle item on/off
+   * Closed_Fist: Layer 1 = Enter panel
    * Note: When entering Layer 2, we dispatch SET_NAVIGATION_LAYER which should trigger
    * a subsequent action to select the first item in handleGesture
    */
@@ -78,22 +78,6 @@ export class GestureHandler {
     // Note: Selecting first item will be handled by the app after layer change
     if (state.navigationLayer === 1 && state.selectedPanel) {
       return { type: 'SET_NAVIGATION_LAYER', payload: 2 };
-    }
-
-    // Layer 2: Toggle the selected item
-    if (state.navigationLayer === 2 && state.selectedItem) {
-      if (state.selectedItem.type === 'instrument') {
-        return { type: 'TOGGLE_INSTRUMENT', payload: state.selectedItem.id as InstrumentType };
-      } else if (state.selectedItem.type === 'effect') {
-        return { type: 'TOGGLE_EFFECT', payload: state.selectedItem.id as EffectType };
-      } else if (state.selectedItem.type === 'control') {
-        // For control items, toggle lock or recording
-        if (state.selectedItem.id === 'lock') {
-          return { type: 'TOGGLE_LOCK' };
-        } else if (state.selectedItem.id === 'recording') {
-          return { type: 'TOGGLE_RECORDING' };
-        }
-      }
     }
 
     return null;
@@ -307,15 +291,31 @@ export class GestureHandler {
   }
 
   /**
-   * ILoveYou: Wildcard - randomize parameters
+   * ILoveYou: Layer 2 = Toggle item on/off
    */
-  private handleILoveYou(_state: AppState): AppAction | null {
-    const actionKey = 'iloveyou_random';
-    if (!this.debouncer.canTrigger(actionKey, 1000)) {
+  private handleILoveYou(state: AppState): AppAction | null {
+    const actionKey = 'iloveyou_toggle';
+    if (!this.debouncer.canTrigger(actionKey, 600)) {
       return null;
     }
 
-    return { type: 'RANDOMIZE_ALL' };
+    // Layer 2: Toggle the selected item
+    if (state.navigationLayer === 2 && state.selectedItem) {
+      if (state.selectedItem.type === 'instrument') {
+        return { type: 'TOGGLE_INSTRUMENT', payload: state.selectedItem.id as InstrumentType };
+      } else if (state.selectedItem.type === 'effect') {
+        return { type: 'TOGGLE_EFFECT', payload: state.selectedItem.id as EffectType };
+      } else if (state.selectedItem.type === 'control') {
+        // For control items, toggle lock or recording
+        if (state.selectedItem.id === 'lock') {
+          return { type: 'TOGGLE_LOCK' };
+        } else if (state.selectedItem.id === 'recording') {
+          return { type: 'TOGGLE_RECORDING' };
+        }
+      }
+    }
+
+    return null;
   }
 
   /**

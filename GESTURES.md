@@ -33,26 +33,22 @@ LEFT ←───┼───→ RIGHT
 
 ---
 
-### 1. ✊ Closed Fist - Playback Control
+### 1. ✊ Closed Fist - Enter Panel
 
 **Recognition**: Closed hand with all fingers curled into palm
 
-**Behavior**: Position-based playback control
+**Behavior**: Navigation Layer 1 - Enter selected panel
 
-| Position | Action | Description |
-|----------|--------|-------------|
-| **Left Third** | Pause | Pauses playback if currently playing |
-| **Center Third** | None | Neutral zone - no action |
-| **Right Third** | Play | Starts playback if currently paused |
+**Action**: When in Layer 1, enter the currently selected panel to access its items (transitions to Layer 2)
 
-**Use Case**: Primary control for starting and stopping your beat. Move your fist to the right side of the frame to start, left side to stop.
+**Use Case**: Primary navigation gesture for diving into Control, Instruments, or Effects panels to adjust individual items.
 
-**Debounce**: 800ms (prevents rapid toggling)
+**Debounce**: 600ms
 
 **Tips**:
-- Keep your fist clearly visible
-- Cross into the thirds decisively for reliable triggering
-- The center third acts as a "safe zone"
+- Use this to confirm your panel selection and access individual controls
+- After entering a panel, use other gestures to navigate and adjust items
+- Use Victory gesture to return to Layer 1
 
 ---
 
@@ -200,33 +196,26 @@ LEFT ←───┼───→ RIGHT
 
 ---
 
-### 7. 🤟 ILoveYou - Randomize
+### 7. 🤟 ILoveYou - Toggle Item
 
 **Recognition**: Thumb, index, and pinky fingers extended (rock/love sign)
 
-**Behavior**: Randomizes audio parameters for experimental sounds
+**Behavior**: Navigation Layer 2 - Toggle selected item on/off
 
-**Randomization Affects**:
-- **Tempo**: Random BPM between 110-150
-- **Reverb**: Random wet/dry mix (0-50%)
-- **Delay**: Random feedback (0-60%) and wet/dry (0-40%)
-- **Filter**: Random depth (0-100%) and frequency (200-1000Hz)
+**Actions**:
+- **Instruments**: Toggle instrument on/off
+- **Effects**: Toggle effect on/off
+- **Control Items**: Toggle lock or recording state
 
-**Does NOT Affect**:
-- On/off states (instruments stay on/off)
-- Volume levels
-- Selected item
-- Playback state
+**Use Case**: The primary action gesture in Layer 2. Use this to turn individual instruments and effects on or off, or to toggle control settings like lock and recording.
 
-**Debounce**: 1000ms
-
-**Use Case**: The "wildcard" gesture for experimentation. Creates unexpected variations and happy accidents. Great for live performance improvisation.
+**Debounce**: 600ms
 
 **Tips**:
-- Use when you want unexpected results
-- Combines well with gradually activating instruments
-- Can be used multiple times for different variations
-- Note the tempo change - BPM will jump around
+- Only works when you're in Layer 2 (after entering a panel with Closed Fist)
+- Use this to activate/deactivate items in your mix
+- For instruments and effects, toggling on/off is instant
+- Combine with Open Palm to adjust values before or after toggling
 
 ---
 

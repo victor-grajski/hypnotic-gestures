@@ -50,13 +50,13 @@ Hypnotic Gestures recognizes 7 different hand gestures. See [GESTURES.md](./GEST
 
 | Gesture | Action | Position-Based |
 |---------|--------|----------------|
-| ✊ Closed Fist | Play/Pause | Left = Pause, Right = Play |
-| 🖐️ Open Palm | Adjust Values | Left = Decrease, Right = Increase |
-| ☝️ Pointing Up | Navigate Selection | Up/Down/Left/Right |
-| 👍 Thumbs Up | Turn On | - |
-| 👎 Thumbs Down | Turn Off | - |
-| ✌️ Victory | Reset All | - |
-| 🤟 ILoveYou | Randomize | - |
+| ✊ Closed Fist | Enter Panel (Layer 1) | - |
+| 🖐️ Open Palm | Adjust Values (Layer 2) | Left = Decrease, Right = Increase |
+| ☝️ Pointing Up | Navigate | Left = Previous, Right = Next |
+| 👍 Thumbs Up | Play | - |
+| 👎 Thumbs Down | Pause | - |
+| ✌️ Victory | Return to Layer 1 | - |
+| 🤟 ILoveYou | Toggle Item On/Off (Layer 2) | - |
 
 Press **G** to toggle the gesture guide overlay.
 
@@ -107,11 +107,13 @@ The interface is divided into a 2×2 grid:
 2. **Wait for Model Loading**: The gesture recognition model will load (a few seconds)
 3. **Position Your Hand**: Keep your hand visible in the webcam frame
 4. **Start Making Music**:
-   - Make a **fist on the right side** to start playback
-   - Use **pointing up** gesture and move your hand to navigate between instruments/effects
-   - **Thumbs up** to turn on the selected item
-   - **Open palm left/right** to adjust volume or effect parameters
-   - **ILoveYou gesture** to randomize everything!
+   - Use **thumbs up** to start playback
+   - Use **pointing up left/right** to navigate between panels (Control, Instruments, Effects)
+   - Make a **closed fist** to enter the selected panel
+   - Use **pointing up left/right** again to navigate between items in the panel
+   - Use **ILoveYou gesture** 🤟 to toggle the selected item on/off
+   - Use **open palm left/right** to adjust volume or effect parameters
+   - Use **victory** ✌️ gesture to return to Layer 1 (panel selection)
 
 ### Tips for Best Results
 

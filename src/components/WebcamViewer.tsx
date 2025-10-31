@@ -134,7 +134,7 @@ export function WebcamViewer({
               <span className="text-muted-foreground">Point Right: Next Item</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">✊</span>
+              <span className="text-2xl">🤟</span>
               <span className="text-muted-foreground">Toggle On/Off</span>
             </div>
             <div className="flex items-center gap-2">
@@ -153,10 +153,6 @@ export function WebcamViewer({
             <div className="flex items-center gap-2">
               <span className="text-2xl">👎</span>
               <span className="text-muted-foreground">Pause</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🤟</span>
-              <span className="text-muted-foreground">Randomize</span>
             </div>
           </div>
         </div>
