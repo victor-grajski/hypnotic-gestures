@@ -9,7 +9,7 @@ interface WebcamViewerProps {
   position: PositionInfo;
   isLoading: boolean;
   error: string | null;
-  showGuide: boolean;
+  showQuickGestures: boolean;
 }
 
 export function WebcamViewer({
@@ -20,7 +20,7 @@ export function WebcamViewer({
   position,
   isLoading,
   error,
-  showGuide,
+  showQuickGestures,
 }: WebcamViewerProps) {
   return (
     <div className="relative bg-card rounded-lg overflow-hidden border border-border h-full">
@@ -90,7 +90,7 @@ export function WebcamViewer({
         )}
 
         {/* Frame Division Guides (thirds) */}
-        {showGuide && !isLoading && !error && (
+        {!isLoading && !error && (
           <>
             <div className="absolute top-0 left-1/3 w-px h-full bg-primary/30" />
             <div className="absolute top-0 left-2/3 w-px h-full bg-primary/30" />
@@ -107,8 +107,8 @@ export function WebcamViewer({
       </div>
 
       {/* Gesture Guide Panel */}
-      {showGuide && !isLoading && !error && (
-        <div className="absolute bottom-4 left-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg p-4 border border-border">
+      {showQuickGestures && !isLoading && !error && (
+        <div className="absolute bottom-4 left-4 right-4 bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border">
           <h3 className="text-sm font-semibold text-primary mb-2">Quick Gestures</h3>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex items-center gap-2">

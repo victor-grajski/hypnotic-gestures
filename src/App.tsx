@@ -11,7 +11,7 @@ import './index.css';
 function AppContent() {
   const { state, dispatch, audioEngine } = useApp();
   const gestureHandlerRef = useRef(new GestureHandler(500));
-  const [showGuide, setShowGuide] = useState(true);
+  const [showQuickGestures, setShowQuickGestures] = useState(true);
 
   const {
     videoRef,
@@ -39,11 +39,11 @@ function AppContent() {
     }
   }, [currentGesture, position, state, dispatch, audioEngine]);
 
-  // Toggle guide with 'G' key
+  // Toggle quick gestures panel with 'G' key
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'g' || e.key === 'G') {
-        setShowGuide((prev) => !prev);
+        setShowQuickGestures((prev) => !prev);
       }
     };
 
@@ -77,7 +77,7 @@ function AppContent() {
             position={position}
             isLoading={isLoading}
             error={error}
-            showGuide={showGuide}
+            showQuickGestures={showQuickGestures}
           />
 
           {/* Top Right - Control Panel */}
