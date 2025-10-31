@@ -139,6 +139,8 @@ interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
   audioEngine: AudioEngine;
+  audioInitialized: boolean;
+  initializeAudio: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -147,16 +149,26 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const audioEngineRef = useRef<AudioEngine>(new AudioEngine());
+  const [audioInitialized, setAudioInitialized] = React.useState(false);
+
+  // Function to initialize audio (must be called from user interaction)
+  const initializeAudio = async () => {
+    if (!audioInitialized) {
+      await audioEngineRef.current.initialize();
+      setAudioInitialized(true);
+    }
+  };
 
   // Sync playback state with audio engine
   useEffect(() => {
     const engine = audioEngineRef.current;
-    if (state.playbackState === 'playing') {
+    // Only play if audio has been initialized by user interaction
+    if (state.playbackState === 'playing' && audioInitialized) {
       engine.play();
     } else {
       engine.pause();
     }
-  }, [state.playbackState]);
+  }, [state.playbackState, audioInitialized]);
 
   // Sync instruments with audio engine
   useEffect(() => {
@@ -197,7 +209,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AppContext.Provider
-      value={{ state, dispatch, audioEngine: audioEngineRef.current }}
+      value={{ 
+        state, 
+        dispatch, 
+        audioEngine: audioEngineRef.current,
+        audioInitialized,
+        initializeAudio
+      }}
     >
       {children}
     </AppContext.Provider>

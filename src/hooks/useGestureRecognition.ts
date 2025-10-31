@@ -20,6 +20,7 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
   const gestureRecognizerRef = useRef<GestureRecognizer | null>(null);
   const animationFrameRef = useRef<number>(0);
   const streamRef = useRef<MediaStream | null>(null);
+  const lastTimestampRef = useRef<number>(-1);
 
   const [currentGesture, setCurrentGesture] = useState<GestureType>(null);
   const [gestureScore, setGestureScore] = useState<number>(0);
@@ -32,6 +33,7 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isWebcamActive, setIsWebcamActive] = useState<boolean>(false);
+  const [isRecognizerReady, setIsRecognizerReady] = useState<boolean>(false);
 
   // Initialize MediaPipe Gesture Recognizer
   const initializeGestureRecognizer = useCallback(async () => {
@@ -49,12 +51,14 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
         },
         runningMode: 'VIDEO',
         numHands: 1,
-        minHandDetectionConfidence: 0.5,
-        minHandPresenceConfidence: 0.5,
-        minTrackingConfidence: 0.5,
+        minHandDetectionConfidence: 0.3,
+        minHandPresenceConfidence: 0.3,
+        minTrackingConfidence: 0.3,
       });
 
       gestureRecognizerRef.current = recognizer;
+      console.log('Gesture recognizer initialized successfully');
+      setIsRecognizerReady(true);
       setIsLoading(false);
     } catch (err) {
       console.error('Failed to initialize gesture recognizer:', err);
@@ -66,6 +70,7 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
   // Start webcam
   const startWebcam = useCallback(async () => {
     try {
+      console.log('Requesting webcam access...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
@@ -75,11 +80,31 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
         audio: false,
       });
 
+      console.log('Webcam stream obtained:', stream.getVideoTracks()[0].getSettings());
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.addEventListener('loadeddata', () => {
-          setIsWebcamActive(true);
-        });
+        
+        const handleLoadedData = async () => {
+          try {
+            if (videoRef.current) {
+              console.log('Video loaded, dimensions:', {
+                videoWidth: videoRef.current.videoWidth,
+                videoHeight: videoRef.current.videoHeight,
+                readyState: videoRef.current.readyState
+              });
+              
+              await videoRef.current.play();
+              console.log('Video playing successfully');
+              setIsWebcamActive(true);
+            }
+          } catch (playError) {
+            console.error('Failed to play video:', playError);
+            setError('Failed to play video stream');
+          }
+        };
+
+        videoRef.current.addEventListener('loadeddata', handleLoadedData, { once: true });
       }
 
       streamRef.current = stream;
@@ -95,7 +120,13 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
     const canvas = canvasRef.current;
     const recognizer = gestureRecognizerRef.current;
 
-    if (!video || !canvas || !recognizer || !isWebcamActive) {
+    if (!video || !canvas || !recognizer || !isWebcamActive || !isRecognizerReady) {
+      animationFrameRef.current = requestAnimationFrame(processFrame);
+      return;
+    }
+
+    // Check if video has valid dimensions before processing
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
       animationFrameRef.current = requestAnimationFrame(processFrame);
       return;
     }
@@ -107,14 +138,30 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
     if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+      console.log('Canvas resized to:', canvas.width, 'x', canvas.height);
     }
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Detect gestures
-    const startTimeMs = performance.now();
-    const results = recognizer.recognizeForVideo(video, startTimeMs);
+    // Detect gestures - ensure timestamp is strictly increasing
+    // Use performance.now() which is guaranteed to be monotonically increasing
+    let timestampMs = performance.now();
+    
+    // Ensure timestamp is strictly greater than the last one
+    if (timestampMs <= lastTimestampRef.current) {
+      timestampMs = lastTimestampRef.current + 1;
+    }
+    lastTimestampRef.current = timestampMs;
+    
+    try {
+      const results = recognizer.recognizeForVideo(video, timestampMs);
+      
+      // Log first successful detection
+      if (results.landmarks && results.landmarks.length > 0 && !processFrame.hasLoggedDetection) {
+        console.log('First hand detected! Results:', results);
+        processFrame.hasLoggedDetection = true;
+      }
 
     // Draw landmarks and connections
     if (results.landmarks && results.landmarks.length > 0) {
@@ -154,9 +201,12 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
       setCurrentGesture(null);
       setGestureScore(0);
     }
+    } catch (error) {
+      console.error('Error processing frame:', error);
+    }
 
     animationFrameRef.current = requestAnimationFrame(processFrame);
-  }, [isWebcamActive]);
+  }, [isWebcamActive, isRecognizerReady]);
 
   // Initialize on mount
   useEffect(() => {
@@ -176,7 +226,16 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
 
   // Start processing frames when ready
   useEffect(() => {
-    if (isWebcamActive && gestureRecognizerRef.current) {
+    console.log('Frame processing effect triggered:', {
+      isWebcamActive,
+      isRecognizerReady,
+      hasRecognizer: !!gestureRecognizerRef.current,
+      hasVideo: !!videoRef.current,
+      videoReady: videoRef.current?.readyState
+    });
+    
+    if (isWebcamActive && isRecognizerReady && gestureRecognizerRef.current) {
+      console.log('✅ Starting frame processing loop!');
       animationFrameRef.current = requestAnimationFrame(processFrame);
     }
 
@@ -185,7 +244,7 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isWebcamActive, processFrame]);
+  }, [isWebcamActive, isRecognizerReady, processFrame]);
 
   return {
     videoRef,

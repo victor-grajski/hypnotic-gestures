@@ -23,16 +23,16 @@ export function WebcamViewer({
   showGuide,
 }: WebcamViewerProps) {
   return (
-    <div className="relative bg-card rounded-lg overflow-hidden border border-border">
+    <div className="relative bg-card rounded-lg overflow-hidden border border-border" style={{ minHeight: '400px' }}>
       {/* Video and Canvas */}
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full" style={{ minHeight: '400px' }}>
         <video
           ref={videoRef}
           autoPlay
           playsInline
           muted
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ transform: 'scaleX(-1)' }} // Mirror for natural interaction
+          style={{ transform: 'scaleX(-1)', backgroundColor: '#000' }} // Mirror for natural interaction
         />
         <canvas
           ref={canvasRef}

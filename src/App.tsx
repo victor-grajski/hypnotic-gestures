@@ -55,7 +55,7 @@ function AppContent() {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-[1920px] mx-auto">
         {/* Header */}
-        <header className="mb-4 text-center">
+        {/* <header className="mb-4 text-center">
           <h1 className="text-4xl font-bold text-foreground mb-2">
             🎵 Hypnotic Gestures
           </h1>
@@ -64,7 +64,7 @@ function AppContent() {
             <kbd className="px-2 py-1 bg-secondary rounded text-xs font-mono">G</kbd> to
             toggle guide
           </p>
-        </header>
+        </header> */}
 
         {/* 2x2 Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[calc(100vh-120px)]">

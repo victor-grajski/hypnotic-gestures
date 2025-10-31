@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 
 export function ControlPanel() {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, audioInitialized, initializeAudio } = useApp();
 
   const handlePlayPause = () => {
     dispatch({
@@ -52,11 +52,30 @@ export function ControlPanel() {
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           Playback
         </h3>
+        
+        {/* Audio Initialization Button */}
+        {!audioInitialized && (
+          <div className="bg-primary/10 border-2 border-primary rounded-lg p-4 space-y-2">
+            <p className="text-sm text-foreground text-center">
+              Click to enable audio
+            </p>
+            <button
+              onClick={initializeAudio}
+              className="w-full py-3 px-6 rounded-lg font-semibold text-lg bg-primary text-primary-foreground hover:opacity-90 transition-all"
+            >
+              🔊 Start Audio
+            </button>
+          </div>
+        )}
+        
         <div className="flex gap-3">
           <button
             onClick={handlePlayPause}
+            disabled={!audioInitialized}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-all ${
-              state.playbackState === 'playing'
+              !audioInitialized
+                ? 'bg-secondary/50 text-secondary-foreground/50 cursor-not-allowed'
+                : state.playbackState === 'playing'
                 ? 'bg-primary text-primary-foreground hover:opacity-90'
                 : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
             }`}
