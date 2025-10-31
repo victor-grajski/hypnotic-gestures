@@ -94,12 +94,12 @@ export function WebcamViewer({
           <>
             <div className="absolute top-0 left-1/3 w-px h-full bg-primary/30" />
             <div className="absolute top-0 left-2/3 w-px h-full bg-primary/30" />
-            <div className="absolute top-1/2 left-0 w-full h-px bg-primary/30" />
+            <div className="absolute top-1/2 left-0 w-1/3 h-px bg-primary/30" />
+            <div className="absolute top-1/2 right-0 w-1/3 h-px bg-primary/30" />
             
             {/* Zone Labels */}
-            <div className="absolute top-2 left-2 text-xs text-primary/50 font-mono">LEFT</div>
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs text-primary/50 font-mono">CENTER</div>
-            <div className="absolute top-2 right-2 text-xs text-primary/50 font-mono">RIGHT</div>
+            <div className="absolute top-1/2 left-2 mt-1 text-xs text-primary/50 font-mono">LEFT</div>``
+            <div className="absolute top-1/2 right-2 mt-1 text-xs text-primary/50 font-mono">RIGHT</div>
             <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs text-primary/50 font-mono">UP</div>
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-primary/50 font-mono">DOWN</div>
           </>
