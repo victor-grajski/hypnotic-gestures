@@ -6,15 +6,15 @@ export class AudioEngine {
   private effects: Map<EffectType, Tone.ToneAudioNode> = new Map();
   private loops: Map<InstrumentType, Tone.Loop> = new Map();
   private isInitialized = false;
-  private masterGain: Tone.Gain;
+  private masterGain: Tone.Gain | null = null;
 
   constructor() {
-    this.masterGain = new Tone.Gain(0.7).toDestination();
-    this.initializeInstruments();
-    this.initializeEffects();
+    // Don't create any Tone.js objects yet - wait for user interaction
   }
 
   private initializeInstruments() {
+    if (!this.masterGain) return;
+
     // Kick drum - deep, punchy
     const kick = new Tone.MembraneSynth({
       pitchDecay: 0.05,
@@ -89,6 +89,8 @@ export class AudioEngine {
   }
 
   private initializeEffects() {
+    if (!this.masterGain) return;
+
     // Reverb
     const reverb = new Tone.Reverb({
       decay: 2.5,
@@ -167,24 +169,35 @@ export class AudioEngine {
     
     await Tone.start();
     Tone.getTransport().bpm.value = 128;
+    
+    // Now create all Tone.js objects AFTER user interaction
+    this.masterGain = new Tone.Gain(0.7).toDestination();
+    this.initializeInstruments();
+    this.initializeEffects();
+    
     this.isInitialized = true;
   }
 
   async play() {
     await this.initialize();
-    Tone.getTransport().start();
+    if (this.isInitialized) {
+      Tone.getTransport().start();
+    }
   }
 
   pause() {
+    if (!this.isInitialized) return;
     Tone.getTransport().pause();
   }
 
   reset() {
+    if (!this.isInitialized) return;
     Tone.getTransport().stop();
     Tone.getTransport().position = 0;
   }
 
   toggleInstrument(id: InstrumentType, isOn: boolean) {
+    if (!this.isInitialized) return;
     const loop = this.loops.get(id);
     if (!loop) return;
 
@@ -196,6 +209,7 @@ export class AudioEngine {
   }
 
   setInstrumentVolume(id: InstrumentType, volume: number) {
+    if (!this.isInitialized) return;
     const instrument = this.instruments.get(id);
     if (!instrument) return;
 
@@ -205,15 +219,18 @@ export class AudioEngine {
   }
 
   adjustTempo(bpm: number) {
+    if (!this.isInitialized) return;
     Tone.getTransport().bpm.value = bpm;
   }
 
   setMasterVolume(volume: number) {
+    if (!this.masterGain) return;
     const db = volume === 0 ? -Infinity : (volume * 60) - 60;
     this.masterGain.gain.value = Math.pow(10, db / 20);
   }
 
   toggleEffect(id: EffectType, isOn: boolean) {
+    if (!this.isInitialized) return;
     const effect = this.effects.get(id);
     if (!effect) return;
 
@@ -232,6 +249,7 @@ export class AudioEngine {
   }
 
   setEffectParameter(id: EffectType, param: string, value: number) {
+    if (!this.isInitialized) return;
     const effect = this.effects.get(id);
     if (!effect) return;
 
@@ -253,6 +271,11 @@ export class AudioEngine {
   }
 
   randomize() {
+    if (!this.isInitialized) {
+      console.warn('Cannot randomize: Audio not initialized yet');
+      return;
+    }
+
     // Randomize tempo
     const bpm = Math.floor(Math.random() * 40) + 110; // 110-150 BPM
     this.adjustTempo(bpm);
@@ -290,6 +313,8 @@ export class AudioEngine {
     this.loops.forEach((loop) => loop.dispose());
     this.instruments.forEach((instrument) => instrument.dispose());
     this.effects.forEach((effect) => effect.dispose());
-    this.masterGain.dispose();
+    if (this.masterGain) {
+      this.masterGain.dispose();
+    }
   }
 }

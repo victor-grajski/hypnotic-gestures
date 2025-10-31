@@ -11,10 +11,10 @@ const initialState: AppState = {
   selectedMode: null,
   selectedItem: null,
   instruments: [
-    { id: 'kick', name: 'Kick', isOn: false, volume: 0.8 },
-    { id: 'hihat', name: 'Hi-Hat', isOn: false, volume: 0.6 },
-    { id: 'bass', name: 'Bass', isOn: false, volume: 0.7 },
-    { id: 'lead', name: 'Lead', isOn: false, volume: 0.5 },
+    { id: 'kick', name: 'Kick', isOn: true, volume: 0.8 },
+    { id: 'hihat', name: 'Hi-Hat', isOn: true, volume: 0.6 },
+    { id: 'bass', name: 'Bass', isOn: true, volume: 0.7 },
+    { id: 'lead', name: 'Lead', isOn: true, volume: 0.5 },
   ],
   effects: [
     {
@@ -170,17 +170,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.playbackState, audioInitialized]);
 
-  // Sync instruments with audio engine
+  // Sync instruments with audio engine (only after initialization)
   useEffect(() => {
+    if (!audioInitialized) return;
     const engine = audioEngineRef.current;
     state.instruments.forEach((instrument) => {
       engine.toggleInstrument(instrument.id, instrument.isOn);
       engine.setInstrumentVolume(instrument.id, instrument.volume);
     });
-  }, [state.instruments]);
+  }, [state.instruments, audioInitialized]);
 
-  // Sync effects with audio engine
+  // Sync effects with audio engine (only after initialization)
   useEffect(() => {
+    if (!audioInitialized) return;
     const engine = audioEngineRef.current;
     state.effects.forEach((effect) => {
       engine.toggleEffect(effect.id, effect.isOn);
@@ -188,17 +190,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         engine.setEffectParameter(effect.id, param, value);
       });
     });
-  }, [state.effects]);
+  }, [state.effects, audioInitialized]);
 
-  // Sync tempo with audio engine
+  // Sync tempo with audio engine (only after initialization)
   useEffect(() => {
+    if (!audioInitialized) return;
     audioEngineRef.current.adjustTempo(state.tempo);
-  }, [state.tempo]);
+  }, [state.tempo, audioInitialized]);
 
-  // Sync master volume with audio engine
+  // Sync master volume with audio engine (only after initialization)
   useEffect(() => {
+    if (!audioInitialized) return;
     audioEngineRef.current.setMasterVolume(state.masterVolume);
-  }, [state.masterVolume]);
+  }, [state.masterVolume, audioInitialized]);
 
   // Cleanup on unmount
   useEffect(() => {
