@@ -52,8 +52,8 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-[1920px] mx-auto">
+    <div className="h-screen bg-background p-4 flex flex-col overflow-hidden">
+      <div className="max-w-[1920px] mx-auto flex-1 flex flex-col w-full min-h-0">
         {/* Header */}
         {/* <header className="mb-4 text-center">
           <h1 className="text-4xl font-bold text-foreground mb-2">
@@ -67,43 +67,28 @@ function AppContent() {
         </header> */}
 
         {/* 2x2 Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[calc(100vh-120px)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
           {/* Top Left - Webcam Viewer */}
-          <div className="min-h-[300px]">
-            <WebcamViewer
-              videoRef={videoRef}
-              canvasRef={canvasRef}
-              currentGesture={currentGesture}
-              gestureScore={gestureScore}
-              position={position}
-              isLoading={isLoading}
-              error={error}
-              showGuide={showGuide}
-            />
-          </div>
+          <WebcamViewer
+            videoRef={videoRef}
+            canvasRef={canvasRef}
+            currentGesture={currentGesture}
+            gestureScore={gestureScore}
+            position={position}
+            isLoading={isLoading}
+            error={error}
+            showGuide={showGuide}
+          />
 
           {/* Top Right - Control Panel */}
-          <div className="min-h-[300px]">
-            <ControlPanel />
-          </div>
+          <ControlPanel />
 
           {/* Bottom Left - Instruments */}
-          <div className="min-h-[300px]">
-            <InstrumentPanel />
-          </div>
+          <InstrumentPanel />
 
           {/* Bottom Right - Effects */}
-          <div className="min-h-[300px]">
-            <EffectsPanel />
-          </div>
+          <EffectsPanel />
         </div>
-
-        {/* Footer */}
-        <footer className="mt-4 text-center text-xs text-muted-foreground">
-          <p>
-            Built with React, TypeScript, MediaPipe, Tone.js • Gesture Control Demo
-          </p>
-        </footer>
       </div>
     </div>
   );

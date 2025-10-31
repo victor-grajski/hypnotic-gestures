@@ -25,7 +25,7 @@ export function EffectsPanel() {
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6 flex flex-col gap-4">
+    <div className="bg-card rounded-lg border border-border p-6 flex flex-col gap-4 overflow-y-auto h-full">
       <h2 className="text-2xl font-bold text-foreground">Effects</h2>
 
       <div className="flex-1 grid gap-3 auto-rows-min">

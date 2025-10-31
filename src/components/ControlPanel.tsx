@@ -36,7 +36,7 @@ export function ControlPanel() {
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6 flex flex-col gap-6">
+    <div className="bg-card rounded-lg border border-border p-6 flex flex-col gap-6 overflow-y-auto h-full">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">Controls</h2>
         {state.isRecording && (

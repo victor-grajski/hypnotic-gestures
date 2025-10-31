@@ -23,9 +23,9 @@ export function WebcamViewer({
   showGuide,
 }: WebcamViewerProps) {
   return (
-    <div className="relative bg-card rounded-lg overflow-hidden border border-border" style={{ minHeight: '400px' }}>
+    <div className="relative bg-card rounded-lg overflow-hidden border border-border h-full">
       {/* Video and Canvas */}
-      <div className="relative w-full h-full" style={{ minHeight: '400px' }}>
+      <div className="relative w-full h-full">
         <video
           ref={videoRef}
           autoPlay
