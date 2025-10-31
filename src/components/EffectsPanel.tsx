@@ -24,9 +24,33 @@ export function EffectsPanel() {
     return state.selectedItem?.type === 'effect' && state.selectedItem?.id === id;
   };
 
+  // Check if this panel is selected in Layer 1
+  const isPanelSelected = state.navigationLayer === 1 && state.selectedPanel === 'effects';
+
+  const handlePanelClick = () => {
+    // Only allow selecting panel in Layer 1
+    if (state.navigationLayer === 1) {
+      dispatch({ type: 'SET_SELECTED_PANEL', payload: 'effects' });
+    }
+  };
+
   return (
-    <div className="bg-card rounded-lg border border-border p-6 flex flex-col gap-4 overflow-y-auto h-full">
-      <h2 className="text-2xl font-bold text-foreground">Effects</h2>
+    <div 
+      onClick={handlePanelClick}
+      className={`bg-card rounded-lg border-2 p-6 flex flex-col gap-4 overflow-y-auto h-full transition-all ${
+        isPanelSelected 
+          ? 'border-primary shadow-xl shadow-primary/30' 
+          : 'border-border hover:border-primary/50'
+      } ${state.navigationLayer === 1 ? 'cursor-pointer' : ''}`}
+    >
+      <div className="flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-foreground">Effects</h2>
+        {isPanelSelected && (
+          <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full font-semibold">
+            PANEL SELECTED
+          </span>
+        )}
+      </div>
 
       <div className="flex-1 grid gap-3 auto-rows-min">
         {state.effects.map((effect) => (
@@ -134,7 +158,7 @@ export function EffectsPanel() {
       {/* Help Text */}
       <div className="pt-4 border-t border-border">
         <p className="text-xs text-muted-foreground text-center">
-          ☝️ Point to navigate • 👍 Turn on • 👎 Turn off • 🖐️ Adjust parameters
+          ☝️ Navigate • ✊ Toggle • 🖐️ Adjust • 👍 Play • 👎 Pause • ✌️ Exit
         </p>
       </div>
     </div>

@@ -65,14 +65,22 @@ export interface Effect {
 
 // Selected item
 export interface SelectedItem {
-  type: 'instrument' | 'effect';
+  type: 'instrument' | 'effect' | 'control';
   id: string;
 }
+
+// Panel types for navigation
+export type PanelType = 'control' | 'instruments' | 'effects';
+
+// Navigation layer
+export type NavigationLayer = 1 | 2;
 
 // App state
 export interface AppState {
   playbackState: PlaybackState;
   selectedMode: ModeType;
+  navigationLayer: NavigationLayer;
+  selectedPanel: PanelType | null;
   selectedItem: SelectedItem | null;
   instruments: Instrument[];
   effects: Effect[];
@@ -86,6 +94,8 @@ export interface AppState {
 export type AppAction =
   | { type: 'UPDATE_PLAYBACK'; payload: PlaybackState }
   | { type: 'SET_MODE'; payload: ModeType }
+  | { type: 'SET_NAVIGATION_LAYER'; payload: NavigationLayer }
+  | { type: 'SET_SELECTED_PANEL'; payload: PanelType | null }
   | { type: 'SELECT_ITEM'; payload: SelectedItem | null }
   | { type: 'TOGGLE_INSTRUMENT'; payload: InstrumentType }
   | { type: 'TOGGLE_EFFECT'; payload: EffectType }

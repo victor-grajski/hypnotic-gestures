@@ -44,7 +44,7 @@ export class GestureHandler {
         return this.handleOpenPalm(position.third, state);
 
       case 'Pointing_Up':
-        return this.handlePointingUp(position.quadrant, state);
+        return this.handlePointingUp(position.third, state);
 
       case 'Thumb_Down':
         return this.handleThumbDown(state);
@@ -53,7 +53,7 @@ export class GestureHandler {
         return this.handleThumbUp(state);
 
       case 'Victory':
-        return this.handleVictory();
+        return this.handleVictory(state);
 
       case 'ILoveYou':
         return this.handleILoveYou(state);
@@ -64,31 +64,49 @@ export class GestureHandler {
   }
 
   /**
-   * Closed_Fist: Play/Pause control based on position
-   * Left third = pause, Right third = play, Center = neutral
+   * Closed_Fist: Layer 1 = Enter panel, Layer 2 = Toggle item on/off
+   * Note: When entering Layer 2, we dispatch SET_NAVIGATION_LAYER which should trigger
+   * a subsequent action to select the first item in handleGesture
    */
-  private handleClosedFist(third: FrameThird, state: AppState): AppAction | null {
-    const actionKey = `fist_${third}`;
+  private handleClosedFist(_third: FrameThird, state: AppState): AppAction | null {
+    const actionKey = 'fist_action';
     
-    if (!this.debouncer.canTrigger(actionKey, 800)) {
+    if (!this.debouncer.canTrigger(actionKey, 600)) {
       return null;
     }
 
-    if (third === 'left' && state.playbackState === 'playing') {
-      return { type: 'UPDATE_PLAYBACK', payload: 'paused' };
-    } else if (third === 'right' && state.playbackState === 'paused') {
-      return { type: 'UPDATE_PLAYBACK', payload: 'playing' };
+    // Layer 1: Enter the selected panel
+    // Note: Selecting first item will be handled by the app after layer change
+    if (state.navigationLayer === 1 && state.selectedPanel) {
+      return { type: 'SET_NAVIGATION_LAYER', payload: 2 };
+    }
+
+    // Layer 2: Toggle the selected item
+    if (state.navigationLayer === 2 && state.selectedItem) {
+      if (state.selectedItem.type === 'instrument') {
+        return { type: 'TOGGLE_INSTRUMENT', payload: state.selectedItem.id as InstrumentType };
+      } else if (state.selectedItem.type === 'effect') {
+        return { type: 'TOGGLE_EFFECT', payload: state.selectedItem.id as EffectType };
+      } else if (state.selectedItem.type === 'control') {
+        // For control items, toggle lock or recording
+        if (state.selectedItem.id === 'lock') {
+          return { type: 'TOGGLE_LOCK' };
+        } else if (state.selectedItem.id === 'recording') {
+          return { type: 'TOGGLE_RECORDING' };
+        }
+      }
     }
 
     return null;
   }
 
   /**
-   * Open_Palm: Slider control based on position
-   * Requires a selected item with controllable parameters
+   * Open_Palm: Adjust value of selected item (Layer 2 only)
+   * Left = decrease, Right = increase
    */
   private handleOpenPalm(third: FrameThird, state: AppState): AppAction | null {
-    if (!state.selectedItem) {
+    // Only works in Layer 2
+    if (state.navigationLayer !== 2 || !state.selectedItem) {
       return null;
     }
 
@@ -135,115 +153,158 @@ export class GestureHandler {
           },
         };
       }
+    } else if (state.selectedItem.type === 'control') {
+      // Handle control panel items
+      if (state.selectedItem.id === 'tempo') {
+        const tempoAdjustment = adjustment * 200; // Scale for tempo (±10 BPM per gesture)
+        const newTempo = Math.max(60, Math.min(200, state.tempo + tempoAdjustment));
+        return { type: 'UPDATE_TEMPO', payload: Math.round(newTempo) };
+      } else if (state.selectedItem.id === 'masterVolume') {
+        const newVolume = Math.max(0, Math.min(1, state.masterVolume + adjustment));
+        return { type: 'UPDATE_MASTER_VOLUME', payload: newVolume };
+      }
+      // Lock and recording don't have adjustable values
     }
 
     return null;
   }
 
   /**
-   * Pointing_Up: Navigate selection
-   * Up/Down = change row, Left/Right = change column
+   * Pointing_Up: Cycle based on which side of frame hand is on
+   * Left side = previous, Right side = next
    */
-  private handlePointingUp(quadrant: FrameQuadrant, state: AppState): AppAction | null {
-    const actionKey = `point_${quadrant}`;
+  private handlePointingUp(third: FrameThird, state: AppState): AppAction | null {
+    const actionKey = `point_${third}`;
     
     if (!this.debouncer.canTrigger(actionKey, 600)) {
+      console.log('🚫 Pointing_Up debounced:', actionKey);
       return null;
     }
 
-    // Build selection grid (2x2)
-    const allItems = [
-      ...state.instruments.map((i) => ({ type: 'instrument' as const, id: i.id })),
-      ...state.effects.map((e) => ({ type: 'effect' as const, id: e.id })),
-    ];
+    console.log('👆 Pointing_Up detected:', { 
+      third, 
+      navigationLayer: state.navigationLayer, 
+      selectedPanel: state.selectedPanel 
+    });
 
-    if (allItems.length === 0) return null;
-
-    // Get current index
-    let currentIndex = state.selectedItem
-      ? allItems.findIndex(
-          (item) =>
-            item.type === state.selectedItem!.type && item.id === state.selectedItem!.id
-        )
-      : -1;
-
-    // Navigate
-    if (quadrant === 'up') {
-      currentIndex = currentIndex > 0 ? currentIndex - 1 : allItems.length - 1;
-    } else if (quadrant === 'down') {
-      currentIndex = (currentIndex + 1) % allItems.length;
-    } else if (quadrant === 'left') {
-      currentIndex = currentIndex > 0 ? currentIndex - 1 : allItems.length - 1;
-    } else if (quadrant === 'right') {
-      currentIndex = (currentIndex + 1) % allItems.length;
+    // Only respond to left/right sides, not center
+    if (third === 'center') {
+      return null;
     }
 
-    const newSelection = allItems[currentIndex];
-    return { type: 'SELECT_ITEM', payload: newSelection };
+    // Layer 1: Navigate between panels
+    if (state.navigationLayer === 1) {
+      const panels: ('control' | 'instruments' | 'effects')[] = ['control', 'instruments', 'effects'];
+      let currentIndex = state.selectedPanel ? panels.indexOf(state.selectedPanel) : 0;
+      
+      // If somehow no panel is selected, default to first panel
+      if (currentIndex === -1) {
+        currentIndex = 0;
+      }
+      
+      let newIndex = currentIndex;
+      // Left side = previous panel
+      if (third === 'left') {
+        newIndex = currentIndex > 0 ? currentIndex - 1 : panels.length - 1;
+      } 
+      // Right side = next panel
+      else if (third === 'right') {
+        newIndex = (currentIndex + 1) % panels.length;
+      }
+      
+      console.log('✅ Layer 1 navigation:', { currentIndex, newIndex, newPanel: panels[newIndex] });
+      return { type: 'SET_SELECTED_PANEL', payload: panels[newIndex] };
+    }
+
+    // Layer 2: Navigate within the selected panel
+    if (state.navigationLayer === 2 && state.selectedPanel) {
+      let items: { type: 'instrument' | 'effect' | 'control'; id: string }[] = [];
+
+      // Build items list based on selected panel
+      if (state.selectedPanel === 'control') {
+        items = [
+          { type: 'control', id: 'tempo' },
+          { type: 'control', id: 'masterVolume' },
+          { type: 'control', id: 'lock' },
+          { type: 'control', id: 'recording' },
+        ];
+      } else if (state.selectedPanel === 'instruments') {
+        items = state.instruments.map((i) => ({ type: 'instrument' as const, id: i.id }));
+      } else if (state.selectedPanel === 'effects') {
+        items = state.effects.map((e) => ({ type: 'effect' as const, id: e.id }));
+      }
+
+      if (items.length === 0) return null;
+
+      // Get current index
+      let currentIndex = state.selectedItem
+        ? items.findIndex(
+            (item) =>
+              item.type === state.selectedItem!.type && item.id === state.selectedItem!.id
+          )
+        : -1;
+
+      // Left side = previous item, Right side = next item
+      if (third === 'left') {
+        currentIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+      } else if (third === 'right') {
+        currentIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
+      }
+
+      const newSelection = items[currentIndex];
+      return { type: 'SELECT_ITEM', payload: newSelection };
+    }
+
+    return null;
   }
 
   /**
-   * Thumb_Down: Turn off selected item
+   * Thumb_Down: Pause playback
    */
   private handleThumbDown(state: AppState): AppAction | null {
-    if (!state.selectedItem) return null;
-
-    const actionKey = `thumbdown_${state.selectedItem.id}`;
-    if (!this.debouncer.canTrigger(actionKey)) {
+    const actionKey = 'thumbdown_pause';
+    if (!this.debouncer.canTrigger(actionKey, 800)) {
       return null;
     }
 
-    if (state.selectedItem.type === 'instrument') {
-      const instrument = state.instruments.find((i) => i.id === state.selectedItem!.id);
-      if (instrument && instrument.isOn) {
-        return { type: 'TOGGLE_INSTRUMENT', payload: instrument.id as InstrumentType };
-      }
-    } else if (state.selectedItem.type === 'effect') {
-      const effect = state.effects.find((e) => e.id === state.selectedItem!.id);
-      if (effect && effect.isOn) {
-        return { type: 'TOGGLE_EFFECT', payload: effect.id as EffectType };
-      }
+    if (state.playbackState === 'playing') {
+      return { type: 'UPDATE_PLAYBACK', payload: 'paused' };
     }
 
     return null;
   }
 
   /**
-   * Thumb_Up: Turn on selected item
+   * Thumb_Up: Play playback
    */
   private handleThumbUp(state: AppState): AppAction | null {
-    if (!state.selectedItem) return null;
-
-    const actionKey = `thumbup_${state.selectedItem.id}`;
-    if (!this.debouncer.canTrigger(actionKey)) {
+    const actionKey = 'thumbup_play';
+    if (!this.debouncer.canTrigger(actionKey, 800)) {
       return null;
     }
 
-    if (state.selectedItem.type === 'instrument') {
-      const instrument = state.instruments.find((i) => i.id === state.selectedItem!.id);
-      if (instrument && !instrument.isOn) {
-        return { type: 'TOGGLE_INSTRUMENT', payload: instrument.id as InstrumentType };
-      }
-    } else if (state.selectedItem.type === 'effect') {
-      const effect = state.effects.find((e) => e.id === state.selectedItem!.id);
-      if (effect && !effect.isOn) {
-        return { type: 'TOGGLE_EFFECT', payload: effect.id as EffectType };
-      }
+    if (state.playbackState === 'paused') {
+      return { type: 'UPDATE_PLAYBACK', payload: 'playing' };
     }
 
     return null;
   }
 
   /**
-   * Victory: Reset all to defaults
+   * Victory: Return to Layer 1
    */
-  private handleVictory(): AppAction | null {
-    const actionKey = 'victory_reset';
-    if (!this.debouncer.canTrigger(actionKey, 1000)) {
+  private handleVictory(state: AppState): AppAction | null {
+    const actionKey = 'victory_back';
+    if (!this.debouncer.canTrigger(actionKey, 800)) {
       return null;
     }
 
-    return { type: 'RESET_ALL' };
+    // Only works from Layer 2
+    if (state.navigationLayer === 2) {
+      return { type: 'SET_NAVIGATION_LAYER', payload: 1 };
+    }
+
+    return null;
   }
 
   /**

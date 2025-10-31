@@ -109,31 +109,50 @@ export function WebcamViewer({
       {/* Gesture Guide Panel */}
       {showQuickGestures && !isLoading && !error && (
         <div className="absolute bottom-4 left-4 right-4 bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border">
-          <h3 className="text-sm font-semibold text-primary mb-2">Quick Gestures</h3>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <h3 className="text-sm font-semibold text-primary mb-2">Two-Layer Navigation</h3>
+          <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+            <div className="col-span-2 text-xs text-muted-foreground font-semibold mb-1">Layer 1 (Panels):</div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">✊</span>
-              <span className="text-muted-foreground">Play/Pause</span>
+              <span className="text-2xl">☝️⬅️</span>
+              <span className="text-muted-foreground">Point Left: Prev Panel</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🖐️</span>
+              <span className="text-2xl">☝️➡️</span>
+              <span className="text-muted-foreground">Point Right: Next Panel</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">✊</span>
+              <span className="text-muted-foreground">Enter Panel</span>
+            </div>
+            <div className="col-span-2 text-xs text-muted-foreground font-semibold mt-2 mb-1">Layer 2 (Items):</div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">☝️⬅️</span>
+              <span className="text-muted-foreground">Point Left: Prev Item</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">☝️➡️</span>
+              <span className="text-muted-foreground">Point Right: Next Item</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">✊</span>
+              <span className="text-muted-foreground">Toggle On/Off</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🖐️⬅️➡️</span>
               <span className="text-muted-foreground">Adjust Values</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">☝️</span>
-              <span className="text-muted-foreground">Navigate</span>
+              <span className="text-2xl">✌️</span>
+              <span className="text-muted-foreground">Exit to Layer 1</span>
             </div>
+            <div className="col-span-2 text-xs text-muted-foreground font-semibold mt-2 mb-1">Global:</div>
             <div className="flex items-center gap-2">
               <span className="text-2xl">👍</span>
-              <span className="text-muted-foreground">Turn On</span>
+              <span className="text-muted-foreground">Play</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-2xl">👎</span>
-              <span className="text-muted-foreground">Turn Off</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">✌️</span>
-              <span className="text-muted-foreground">Reset</span>
+              <span className="text-muted-foreground">Pause</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-2xl">🤟</span>

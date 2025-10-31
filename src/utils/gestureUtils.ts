@@ -20,9 +20,7 @@ export function getFrameThird(landmarks: HandLandmark[]): FrameThird {
  * Determines which quadrant the hand is in (up, down, left, right)
  * Based on the wrist landmark position
  * Used primarily for Pointing_Up gesture navigation
- * Note: Since horizontal position is already tracked by "third", 
- * this focuses on vertical position (up/down) for most cases
- * Note: y-coordinate appears to need adjustment to match visual display
+ * Returns the dominant direction based on distance from center
  */
 export function getFrameQuadrant(landmarks: HandLandmark[]): FrameQuadrant {
   if (!landmarks || landmarks.length === 0) return 'up';
@@ -31,10 +29,18 @@ export function getFrameQuadrant(landmarks: HandLandmark[]): FrameQuadrant {
   const x = 1 - wrist.x; // Mirror x-coordinate to match video display
   const y = wrist.y;
   
-  // For general position tracking, focus on vertical position
-  // since horizontal is already covered by "third"
-  // Adjust threshold to match where the visual line appears at 50%
-  return y < 0.75 ? 'up' : 'down';
+  // Calculate distance from center (0.5, 0.5)
+  const dx = x - 0.5;
+  const dy = y - 0.5;
+  
+  // Return the direction with the larger absolute distance
+  if (Math.abs(dx) > Math.abs(dy)) {
+    // Horizontal is dominant
+    return dx > 0 ? 'right' : 'left';
+  } else {
+    // Vertical is dominant
+    return dy > 0 ? 'down' : 'up';
+  }
 }
 
 /**

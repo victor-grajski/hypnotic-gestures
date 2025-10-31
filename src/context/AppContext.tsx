@@ -9,6 +9,8 @@ import { AudioEngine } from '../engine/AudioEngine';
 const initialState: AppState = {
   playbackState: 'paused',
   selectedMode: null,
+  navigationLayer: 1,
+  selectedPanel: 'control', // Start with control panel selected
   selectedItem: null,
   instruments: [
     { id: 'kick', name: 'Kick', isOn: true, volume: 0.8 },
@@ -50,6 +52,31 @@ function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'SET_MODE':
       return { ...state, selectedMode: action.payload };
+
+    case 'SET_NAVIGATION_LAYER': {
+      const newState = { ...state, navigationLayer: action.payload };
+      
+      // When entering Layer 2, automatically select the first item in the selected panel
+      if (action.payload === 2 && state.selectedPanel) {
+        if (state.selectedPanel === 'control') {
+          newState.selectedItem = { type: 'control', id: 'tempo' };
+        } else if (state.selectedPanel === 'instruments' && state.instruments.length > 0) {
+          newState.selectedItem = { type: 'instrument', id: state.instruments[0].id };
+        } else if (state.selectedPanel === 'effects' && state.effects.length > 0) {
+          newState.selectedItem = { type: 'effect', id: state.effects[0].id };
+        }
+      }
+      
+      // When returning to Layer 1, clear the selected item
+      if (action.payload === 1) {
+        newState.selectedItem = null;
+      }
+      
+      return newState;
+    }
+
+    case 'SET_SELECTED_PANEL':
+      return { ...state, selectedPanel: action.payload };
 
     case 'SELECT_ITEM':
       return { ...state, selectedItem: action.payload };
