@@ -186,13 +186,13 @@ export class GestureHandler {
       }
       
       let newIndex = currentIndex;
-      // Left side = previous panel
+      // Left side = next panel
       if (third === 'left') {
-        newIndex = currentIndex > 0 ? currentIndex - 1 : panels.length - 1;
-      } 
-      // Right side = next panel
-      else if (third === 'right') {
         newIndex = (currentIndex + 1) % panels.length;
+      } 
+      // Right side = previous panel
+      else if (third === 'right') {
+        newIndex = currentIndex > 0 ? currentIndex - 1 : panels.length - 1;
       }
       
       console.log('✅ Layer 1 navigation:', { currentIndex, newIndex, newPanel: panels[newIndex] });
@@ -291,12 +291,17 @@ export class GestureHandler {
   }
 
   /**
-   * ILoveYou: Layer 2 = Toggle item on/off
+   * ILoveYou: Layer 1 = Toggle guide, Layer 2 = Toggle item on/off
    */
   private handleILoveYou(state: AppState): AppAction | null {
     const actionKey = 'iloveyou_toggle';
     if (!this.debouncer.canTrigger(actionKey, 600)) {
       return null;
+    }
+
+    // Layer 1: Toggle the quick gestures guide
+    if (state.navigationLayer === 1) {
+      return { type: 'TOGGLE_GUIDE' };
     }
 
     // Layer 2: Toggle the selected item

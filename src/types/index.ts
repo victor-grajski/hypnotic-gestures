@@ -88,6 +88,7 @@ export interface AppState {
   masterVolume: number; // 0-1
   isLocked: boolean;
   isRecording: boolean;
+  showQuickGestures: boolean;
 }
 
 // Actions
@@ -106,6 +107,7 @@ export type AppAction =
   | { type: 'UPDATE_INSTRUMENT_PARAM'; payload: { id: InstrumentType; param: string; value: number } }
   | { type: 'TOGGLE_LOCK' }
   | { type: 'TOGGLE_RECORDING' }
+  | { type: 'TOGGLE_GUIDE' }
   | { type: 'RESET_ALL' }
   | { type: 'RANDOMIZE_ALL' };
 

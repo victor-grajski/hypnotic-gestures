@@ -1,15 +1,15 @@
 import React from 'react';
-import type { GestureType, PositionInfo } from '../types';
+import type { GestureType, NavigationLayer } from '../types';
 
 interface WebcamViewerProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   currentGesture: GestureType;
   gestureScore: number;
-  position: PositionInfo;
   isLoading: boolean;
   error: string | null;
   showQuickGestures: boolean;
+  navigationLayer: NavigationLayer;
 }
 
 export function WebcamViewer({
@@ -17,10 +17,10 @@ export function WebcamViewer({
   canvasRef,
   currentGesture,
   gestureScore,
-  position,
   isLoading,
   error,
   showQuickGestures,
+  navigationLayer,
 }: WebcamViewerProps) {
   return (
     <div className="relative bg-card rounded-lg overflow-hidden border border-border h-full">
@@ -77,13 +77,17 @@ export function WebcamViewer({
           </div>
         )}
 
-        {/* Position Indicator */}
-        {!isLoading && !error && currentGesture && (
+        {/* Play/Pause Indicator */}
+        {showQuickGestures && !isLoading && !error && (
           <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
-            <div className="text-sm">
-              <div className="text-muted-foreground">Position</div>
-              <div className="text-xs font-mono text-foreground">
-                {position.third} / {position.quadrant}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">👍</span>
+                <span className="text-xs text-muted-foreground">Play</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">👎</span>
+                <span className="text-xs text-muted-foreground">Pause</span>
               </div>
             </div>
           </div>
@@ -94,68 +98,100 @@ export function WebcamViewer({
           <>
             <div className="absolute top-0 left-1/3 w-px h-full bg-primary/30" />
             <div className="absolute top-0 left-2/3 w-px h-full bg-primary/30" />
-            <div className="absolute top-1/2 left-0 w-1/3 h-px bg-primary/30" />
-            <div className="absolute top-1/2 right-0 w-1/3 h-px bg-primary/30" />
-            
-            {/* Zone Labels */}
-            <div className="absolute top-1/2 left-2 mt-1 text-xs text-primary/50 font-mono">LEFT</div>``
-            <div className="absolute top-1/2 right-2 mt-1 text-xs text-primary/50 font-mono">RIGHT</div>
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs text-primary/50 font-mono">UP</div>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-primary/50 font-mono">DOWN</div>
           </>
         )}
       </div>
 
-      {/* Gesture Guide Panel */}
-      {showQuickGestures && !isLoading && !error && (
-        <div className="absolute bottom-4 left-4 right-4 bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border">
-          <h3 className="text-sm font-semibold text-primary mb-2">Two-Layer Navigation</h3>
-          <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-            <div className="col-span-2 text-xs text-muted-foreground font-semibold mb-1">Layer 1 (Panels):</div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">☝️⬅️</span>
-              <span className="text-muted-foreground">Point Left: Prev Panel</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">☝️➡️</span>
-              <span className="text-muted-foreground">Point Right: Next Panel</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">✊</span>
-              <span className="text-muted-foreground">Enter Panel</span>
-            </div>
-            <div className="col-span-2 text-xs text-muted-foreground font-semibold mt-2 mb-1">Layer 2 (Items):</div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">☝️⬅️</span>
-              <span className="text-muted-foreground">Point Left: Prev Item</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">☝️➡️</span>
-              <span className="text-muted-foreground">Point Right: Next Item</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🤟</span>
-              <span className="text-muted-foreground">Toggle On/Off</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🖐️⬅️➡️</span>
-              <span className="text-muted-foreground">Adjust Values</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">✌️</span>
-              <span className="text-muted-foreground">Exit to Layer 1</span>
-            </div>
-            <div className="col-span-2 text-xs text-muted-foreground font-semibold mt-2 mb-1">Global:</div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">👍</span>
-              <span className="text-muted-foreground">Play</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">👎</span>
-              <span className="text-muted-foreground">Pause</span>
+      {/* Layer 1 Actions - Lower Corners */}
+      {showQuickGestures && !isLoading && !error && navigationLayer === 1 && (
+        <>
+          {/* Lower Left Corner */}
+          <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
+            <div className="text-sm text-muted-foreground mb-2">Left Hand</div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">☝️</span>
+                <span className="text-xs text-muted-foreground">Previous Panel</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✊</span>
+                <span className="text-xs text-muted-foreground">Enter Panel</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🤟</span>
+                <span className="text-xs text-muted-foreground">Toggle Guide</span>
+              </div>
             </div>
           </div>
-        </div>
+          {/* Lower Right Corner */}
+          <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
+            <div className="text-sm text-muted-foreground mb-2">Right Hand</div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">☝️</span>
+                <span className="text-xs text-muted-foreground">Next Panel</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✊</span>
+                <span className="text-xs text-muted-foreground">Enter Panel</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🤟</span>
+                <span className="text-xs text-muted-foreground">Toggle Guide</span>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Layer 2 Actions - Lower Corners */}
+      {showQuickGestures && !isLoading && !error && navigationLayer === 2 && (
+        <>
+          {/* Lower Left Corner */}
+          <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
+            <div className="text-sm text-muted-foreground mb-2">Left Hand</div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">☝️</span>
+                <span className="text-xs text-muted-foreground">Prev Item</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🤟</span>
+                <span className="text-xs text-muted-foreground">Toggle On/Off</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🖐️</span>
+                <span className="text-xs text-muted-foreground">Decrease Value</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✌️</span>
+                <span className="text-xs text-muted-foreground">Exit Panel</span>
+              </div>
+            </div>
+          </div>
+          {/* Lower Right Corner */}
+          <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
+            <div className="text-sm text-muted-foreground mb-2">Right Hand</div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">☝️</span>
+                <span className="text-xs text-muted-foreground">Next Item</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🤟</span>
+                <span className="text-xs text-muted-foreground">Toggle On/Off</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🖐️</span>
+                <span className="text-xs text-muted-foreground">Increase Value</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✌️</span>
+                <span className="text-xs text-muted-foreground">Exit Panel</span>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

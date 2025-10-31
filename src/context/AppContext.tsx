@@ -42,6 +42,7 @@ const initialState: AppState = {
   masterVolume: 0.7,
   isLocked: false,
   isRecording: false,
+  showQuickGestures: true,
 };
 
 // Reducer
@@ -145,6 +146,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'TOGGLE_RECORDING':
       return { ...state, isRecording: !state.isRecording };
+
+    case 'TOGGLE_GUIDE':
+      return { ...state, showQuickGestures: !state.showQuickGestures };
 
     case 'RESET_ALL':
       return {

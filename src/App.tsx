@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { useGestureRecognition } from './hooks/useGestureRecognition';
 import { GestureHandler } from './engine/GestureHandler';
@@ -11,7 +11,6 @@ import './index.css';
 function AppContent() {
   const { state, dispatch, audioEngine } = useApp();
   const gestureHandlerRef = useRef(new GestureHandler(500));
-  const [showQuickGestures, setShowQuickGestures] = useState(true);
 
   const {
     videoRef,
@@ -43,13 +42,13 @@ function AppContent() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'g' || e.key === 'G') {
-        setShowQuickGestures((prev) => !prev);
+        dispatch({ type: 'TOGGLE_GUIDE' });
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="h-screen bg-background p-4 flex flex-col overflow-hidden">
@@ -74,10 +73,10 @@ function AppContent() {
             canvasRef={canvasRef}
             currentGesture={currentGesture}
             gestureScore={gestureScore}
-            position={position}
             isLoading={isLoading}
             error={error}
-            showQuickGestures={showQuickGestures}
+            showQuickGestures={state.showQuickGestures}
+            navigationLayer={state.navigationLayer}
           />
 
           {/* Top Right - Control Panel */}
