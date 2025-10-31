@@ -4,7 +4,6 @@ import type {
   AppAction,
   AppState,
   FrameThird,
-  FrameQuadrant,
   InstrumentType,
   EffectType,
 } from '../types';

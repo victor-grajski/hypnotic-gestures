@@ -21,6 +21,7 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
   const animationFrameRef = useRef<number>(0);
   const streamRef = useRef<MediaStream | null>(null);
   const lastTimestampRef = useRef<number>(-1);
+  const hasLoggedDetectionRef = useRef<boolean>(false);
 
   const [currentGesture, setCurrentGesture] = useState<GestureType>(null);
   const [gestureScore, setGestureScore] = useState<number>(0);
@@ -158,9 +159,9 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
       const results = recognizer.recognizeForVideo(video, timestampMs);
       
       // Log first successful detection
-      if (results.landmarks && results.landmarks.length > 0 && !processFrame.hasLoggedDetection) {
+      if (results.landmarks && results.landmarks.length > 0 && !hasLoggedDetectionRef.current) {
         console.log('First hand detected! Results:', results);
-        processFrame.hasLoggedDetection = true;
+        hasLoggedDetectionRef.current = true;
       }
 
     // Draw landmarks and connections
