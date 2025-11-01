@@ -45,7 +45,7 @@ export function ADSRPanel() {
   const getParamMax = (param: keyof ADSREnvelope) => {
     if (param === 'sustain') return 1;
     if (param === 'attack') return 0.5;
-    if (param === 'decay') return 1;
+    if (param === 'decay') return 2;
     return 2; // release
   };
 
