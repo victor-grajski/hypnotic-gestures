@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useControls, Leva } from 'leva';
 import type { DebounceConfig } from '../types';
 
-interface DebounceControlPanelProps {
+interface ConfigPanelProps {
   config: DebounceConfig;
   onConfigChange: (config: DebounceConfig) => void;
 }
 
-export function DebounceControlPanel({ config, onConfigChange }: DebounceControlPanelProps) {
+export function ConfigPanel({ config, onConfigChange }: ConfigPanelProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   // Handle keyboard toggle (c key)
@@ -91,24 +91,22 @@ export function DebounceControlPanel({ config, onConfigChange }: DebounceControl
         collapsed={false}
         titleBar={{ position: { x: 0, y: 50 } }}
       />
-      {isVisible && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '10px',
-            right: '10px',
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            zIndex: 9998,
-            pointerEvents: 'none',
-          }}
-        >
-          Press <strong>C</strong> to hide
-        </div>
-      )}
+      <div
+        style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          color: 'white',
+          padding: '8px 12px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          zIndex: 9998,
+          pointerEvents: 'none',
+        }}
+      >
+        Press <strong>C</strong> to {isVisible ? 'hide' : 'show config panel'}
+      </div>
     </>
   );
 }

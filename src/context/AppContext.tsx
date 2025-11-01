@@ -55,7 +55,7 @@ const initialState: AppState = {
     victory: 800,
     iLoveYou: 1000,
   },
-  layout: '2x2',
+  layout: '1+3',
 };
 
 // Reducer

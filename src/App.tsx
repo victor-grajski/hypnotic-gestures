@@ -7,7 +7,7 @@ import { WebcamViewer } from './components/WebcamViewer';
 import { ControlPanel } from './components/ControlPanel';
 import { InstrumentPanel } from './components/InstrumentPanel';
 import { ADSRPanel } from './components/ADSRPanel';
-import { DebounceControlPanel } from './components/DebounceControlPanel';
+import { ConfigPanel } from './components/ConfigPanel';
 import { MinimumScreenSizeOverlay } from './components/MinimumScreenSizeOverlay';
 import type { DebounceConfig, LayoutType } from './types';
 import './index.css';
@@ -31,8 +31,8 @@ function AppContent() {
     layout: {
       value: state.layout,
       options: {
-        '2x2 Grid': '2x2',
         '1+3 Grid': '1+3',
+        '2x2 Grid': '2x2',
       },
       label: 'Layout',
     },
@@ -123,8 +123,8 @@ function AppContent() {
         </div>
       </div>
       
-      {/* Debounce Control Panel - Toggle with 'C' key */}
-      <DebounceControlPanel
+      {/* Config Panel - Toggle with 'C' key */}
+      <ConfigPanel
         config={state.debounceConfig}
         onConfigChange={handleDebounceConfigChange}
       />
