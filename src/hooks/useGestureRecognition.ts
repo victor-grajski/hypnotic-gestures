@@ -172,12 +172,12 @@ export function useGestureRecognition(): UseGestureRecognitionReturn {
         drawingUtils.drawConnectors(
           landmarks,
           GestureRecognizer.HAND_CONNECTIONS,
-          { color: '#00FF00', lineWidth: 2 }
+          { color: '#219897', lineWidth: 2 }
         );
         drawingUtils.drawLandmarks(landmarks, {
-          color: '#FF0000',
+          color: '#219897',
           lineWidth: 1,
-          radius: 3,
+          radius: 4,
         });
       }
 
