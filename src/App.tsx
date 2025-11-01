@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useControls } from 'leva';
 import { AppProvider, useApp } from './context/AppContext';
 import { useGestureRecognition } from './hooks/useGestureRecognition';
 import { GestureHandler } from './engine/GestureHandler';
@@ -8,7 +9,7 @@ import { InstrumentPanel } from './components/InstrumentPanel';
 import { ADSRPanel } from './components/ADSRPanel';
 import { DebounceControlPanel } from './components/DebounceControlPanel';
 import { MinimumScreenSizeOverlay } from './components/MinimumScreenSizeOverlay';
-import type { DebounceConfig } from './types';
+import type { DebounceConfig, LayoutType } from './types';
 import './index.css';
 
 function AppContent() {
@@ -24,6 +25,25 @@ function AppContent() {
     isLoading,
     error,
   } = useGestureRecognition();
+
+  // Leva controls for layout
+  const { layout } = useControls({
+    layout: {
+      value: state.layout,
+      options: {
+        '2x2 Grid': '2x2',
+        '1+3 Grid': '1+3',
+      },
+      label: 'Layout',
+    },
+  });
+
+  // Sync layout with state
+  useEffect(() => {
+    if (layout !== state.layout) {
+      dispatch({ type: 'UPDATE_LAYOUT', payload: layout as LayoutType });
+    }
+  }, [layout, state.layout, dispatch]);
 
   // Update gesture handler when debounce config changes
   useEffect(() => {
@@ -78,9 +98,9 @@ function AppContent() {
           </p>
         </header> */}
 
-        {/* 2x2 Grid */}
-        <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1 min-h-0">
-          {/* Top Left - Webcam Viewer */}
+        {/* Dynamic Grid Layout */}
+        <div className={`${state.layout === '2x2' ? 'grid grid-cols-2 grid-rows-2' : 'grid-1plus3'} gap-4 flex-1 min-h-0`}>
+          {/* Webcam Viewer */}
           <WebcamViewer
             videoRef={videoRef}
             canvasRef={canvasRef}
@@ -92,13 +112,13 @@ function AppContent() {
             navigationLayer={state.navigationLayer}
           />
 
-          {/* Top Right - Control Panel */}
+          {/* Control Panel */}
           <ControlPanel />
 
-          {/* Bottom Left - Instruments */}
+          {/* Instruments */}
           <InstrumentPanel />
 
-          {/* Bottom Right - ADSR Envelopes */}
+          {/* ADSR Envelopes */}
           <ADSRPanel />
         </div>
       </div>

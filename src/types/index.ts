@@ -79,6 +79,9 @@ export type PanelType = 'control' | 'instruments' | 'adsr';
 // Navigation layer
 export type NavigationLayer = 1 | 2;
 
+// Layout type
+export type LayoutType = '2x2' | '1+3';
+
 // Debounce configuration for gesture actions
 export interface DebounceConfig {
   pointingUp: number;      // Cycling items
@@ -106,6 +109,7 @@ export interface AppState {
   isRecording: boolean;
   showQuickGestures: boolean;
   debounceConfig: DebounceConfig;
+  layout: LayoutType;
 }
 
 // Actions
@@ -122,6 +126,7 @@ export type AppAction =
   | { type: 'UPDATE_ADSR_PARAM'; payload: { id: InstrumentType; param: keyof ADSREnvelope; value: number } }
   | { type: 'UPDATE_INSTRUMENT_PARAM'; payload: { id: InstrumentType; param: string; value: number } }
   | { type: 'UPDATE_DEBOUNCE_CONFIG'; payload: DebounceConfig }
+  | { type: 'UPDATE_LAYOUT'; payload: LayoutType }
   | { type: 'TOGGLE_LOCK' }
   | { type: 'TOGGLE_RECORDING' }
   | { type: 'TOGGLE_GUIDE' }

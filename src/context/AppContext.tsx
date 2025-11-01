@@ -55,6 +55,7 @@ const initialState: AppState = {
     victory: 800,
     iLoveYou: 1000,
   },
+  layout: '2x2',
 };
 
 // Reducer
@@ -171,6 +172,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'UPDATE_DEBOUNCE_CONFIG':
       return { ...state, debounceConfig: action.payload };
+
+    case 'UPDATE_LAYOUT':
+      return { ...state, layout: action.payload };
 
     case 'RESET_ALL':
       return {
