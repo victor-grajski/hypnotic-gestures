@@ -170,7 +170,7 @@ export class GestureHandler {
     } else if (state.selectedItem.type === 'control') {
       // Handle control panel items
       if (state.selectedItem.id === 'tempo') {
-        const tempoAdjustment = adjustment * 200; // Scale for tempo (±10 BPM per gesture)
+        const tempoAdjustment = adjustment * 40; // Scale for tempo (±2 BPM per gesture)
         const newTempo = Math.max(60, Math.min(200, state.tempo + tempoAdjustment));
         return { type: 'UPDATE_TEMPO', payload: Math.round(newTempo) };
       } else if (state.selectedItem.id === 'masterVolume') {
