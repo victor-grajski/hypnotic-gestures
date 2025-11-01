@@ -110,6 +110,7 @@ function AppContent() {
             error={error}
             showQuickGestures={state.showQuickGestures}
             navigationLayer={state.navigationLayer}
+            selectedPanel={state.selectedPanel}
           />
 
           {/* Control Panel */}

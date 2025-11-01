@@ -1,5 +1,5 @@
 import React from 'react';
-import type { GestureType, NavigationLayer } from '../types';
+import type { GestureType, NavigationLayer, PanelType } from '../types';
 
 interface WebcamViewerProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -10,6 +10,7 @@ interface WebcamViewerProps {
   error: string | null;
   showQuickGestures: boolean;
   navigationLayer: NavigationLayer;
+  selectedPanel: PanelType | null;
 }
 
 export function WebcamViewer({
@@ -21,6 +22,7 @@ export function WebcamViewer({
   error,
   showQuickGestures,
   navigationLayer,
+  selectedPanel,
 }: WebcamViewerProps) {
   return (
     <div className="relative bg-card rounded-lg overflow-hidden border border-border h-full">
@@ -60,8 +62,16 @@ export function WebcamViewer({
           </div>
         )}
 
+        {/* Frame Division Overlays (thirds) */}
+        {showQuickGestures && !isLoading && !error && (
+          <>
+            <div className="absolute top-0 left-0 w-1/3 h-full bg-[#219897] opacity-30 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-1/3 h-full bg-[#219897] opacity-30 pointer-events-none" />
+          </>
+        )}
+
         {/* Gesture Info Overlay */}
-        {!isLoading && !error && (
+        {showQuickGestures && !isLoading && !error && (
           <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
             <div className="text-sm">
               <div className="text-muted-foreground">Gesture</div>
@@ -93,11 +103,15 @@ export function WebcamViewer({
           </div>
         )}
 
-        {/* Frame Division Guides (thirds) */}
-        {!isLoading && !error && (
+        {/* Hand Labels */}
+        {showQuickGestures && !isLoading && !error && (
           <>
-            <div className="absolute top-0 left-1/3 w-px h-full bg-primary/30" />
-            <div className="absolute top-0 left-2/3 w-px h-full bg-primary/30" />
+            <div className="absolute top-1/2 left-4 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border pointer-events-none">
+              <div className="text-sm text-muted-foreground">Left Hand Area</div>
+            </div>
+            <div className="absolute top-1/2 right-4 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border pointer-events-none">
+              <div className="text-sm text-muted-foreground">Right Hand Area</div>
+            </div>
           </>
         )}
       </div>
@@ -107,7 +121,6 @@ export function WebcamViewer({
         <>
           {/* Lower Left Corner */}
           <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
-            <div className="text-sm text-muted-foreground mb-2">Left Hand</div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-xl">☝️</span>
@@ -125,7 +138,6 @@ export function WebcamViewer({
           </div>
           {/* Lower Right Corner */}
           <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
-            <div className="text-sm text-muted-foreground mb-2">Right Hand</div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-xl">☝️</span>
@@ -149,16 +161,17 @@ export function WebcamViewer({
         <>
           {/* Lower Left Corner */}
           <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
-            <div className="text-sm text-muted-foreground mb-2">Left Hand</div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-xl">☝️</span>
                 <span className="text-xs text-muted-foreground">Prev Item</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🤟</span>
-                <span className="text-xs text-muted-foreground">Toggle On/Off</span>
-              </div>
+              {selectedPanel === 'instruments' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🤟</span>
+                  <span className="text-xs text-muted-foreground">Mute/Unmute</span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <span className="text-xl">🖐️</span>
                 <span className="text-xs text-muted-foreground">Decrease Value</span>
@@ -171,16 +184,17 @@ export function WebcamViewer({
           </div>
           {/* Lower Right Corner */}
           <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
-            <div className="text-sm text-muted-foreground mb-2">Right Hand</div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-xl">☝️</span>
                 <span className="text-xs text-muted-foreground">Next Item</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🤟</span>
-                <span className="text-xs text-muted-foreground">Toggle On/Off</span>
-              </div>
+              {selectedPanel === 'instruments' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🤟</span>
+                  <span className="text-xs text-muted-foreground">Mute/Unmute</span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <span className="text-xl">🖐️</span>
                 <span className="text-xs text-muted-foreground">Increase Value</span>
