@@ -5,15 +5,30 @@ import type {
   AppState,
   FrameThird,
   InstrumentType,
-  EffectType,
+  ADSREnvelope,
+  DebounceConfig,
 } from '../types';
 import { ActionDebouncer } from '../utils/gestureUtils';
 
 export class GestureHandler {
   private debouncer: ActionDebouncer;
+  private debounceConfig: DebounceConfig;
 
-  constructor(debounceMs: number = 500) {
-    this.debouncer = new ActionDebouncer(debounceMs);
+  constructor(debounceConfig?: DebounceConfig) {
+    this.debounceConfig = debounceConfig || {
+      pointingUp: 600,
+      closedFist: 600,
+      openPalm: 200,
+      thumbDown: 800,
+      thumbUp: 800,
+      victory: 800,
+      iLoveYou: 600,
+    };
+    this.debouncer = new ActionDebouncer(500);
+  }
+
+  updateDebounceConfig(config: DebounceConfig) {
+    this.debounceConfig = config;
   }
 
   /**
@@ -70,7 +85,7 @@ export class GestureHandler {
   private handleClosedFist(_third: FrameThird, state: AppState): AppAction | null {
     const actionKey = 'fist_action';
     
-    if (!this.debouncer.canTrigger(actionKey, 600)) {
+    if (!this.debouncer.canTrigger(actionKey, this.debounceConfig.closedFist)) {
       return null;
     }
 
@@ -95,7 +110,7 @@ export class GestureHandler {
 
     const actionKey = `palm_${third}_${state.selectedItem.id}`;
     
-    if (!this.debouncer.canTrigger(actionKey, 200)) {
+    if (!this.debouncer.canTrigger(actionKey, this.debounceConfig.openPalm)) {
       return null;
     }
 
@@ -119,18 +134,29 @@ export class GestureHandler {
           payload: { id: instrument.id, volume: newVolume },
         };
       }
-    } else if (state.selectedItem.type === 'effect') {
-      const effect = state.effects.find((e) => e.id === state.selectedItem!.id);
-      if (effect) {
-        // Adjust the first parameter (usually wet/dry mix)
-        const paramKey = Object.keys(effect.parameters)[0];
-        const currentValue = effect.parameters[paramKey];
-        const newValue = Math.max(0, Math.min(1, currentValue + adjustment));
+    } else if (state.selectedItem.type === 'adsr') {
+      // The selected item ID is now the parameter name (attack, decay, sustain, release)
+      const paramKey = state.selectedItem.id as keyof ADSREnvelope;
+      const leadADSR = state.adsrEnvelopes.find((e) => e.id === 'lead');
+      
+      if (leadADSR && paramKey in leadADSR.envelope) {
+        const currentValue = leadADSR.envelope[paramKey];
+        
+        // Scale adjustment based on parameter
+        let scaledAdjustment = adjustment;
+        if (paramKey === 'sustain') {
+          scaledAdjustment = adjustment; // 0-1 range
+        } else {
+          scaledAdjustment = adjustment * 2; // Scale for time values (0-2 seconds)
+        }
+        
+        const maxValue = paramKey === 'sustain' ? 1 : (paramKey === 'attack' ? 0.5 : 2);
+        const newValue = Math.max(0, Math.min(maxValue, currentValue + scaledAdjustment));
         
         return {
-          type: 'UPDATE_EFFECT_PARAM',
+          type: 'UPDATE_ADSR_PARAM',
           payload: {
-            id: effect.id as EffectType,
+            id: 'lead',
             param: paramKey,
             value: newValue,
           },
@@ -159,7 +185,7 @@ export class GestureHandler {
   private handlePointingUp(third: FrameThird, state: AppState): AppAction | null {
     const actionKey = `point_${third}`;
     
-    if (!this.debouncer.canTrigger(actionKey, 600)) {
+    if (!this.debouncer.canTrigger(actionKey, this.debounceConfig.pointingUp)) {
       console.log('🚫 Pointing_Up debounced:', actionKey);
       return null;
     }
@@ -177,7 +203,7 @@ export class GestureHandler {
 
     // Layer 1: Navigate between panels
     if (state.navigationLayer === 1) {
-      const panels: ('control' | 'instruments' | 'effects')[] = ['control', 'instruments', 'effects'];
+      const panels: ('control' | 'instruments' | 'adsr')[] = ['control', 'instruments', 'adsr'];
       let currentIndex = state.selectedPanel ? panels.indexOf(state.selectedPanel) : 0;
       
       // If somehow no panel is selected, default to first panel
@@ -201,7 +227,7 @@ export class GestureHandler {
 
     // Layer 2: Navigate within the selected panel
     if (state.navigationLayer === 2 && state.selectedPanel) {
-      let items: { type: 'instrument' | 'effect' | 'control'; id: string }[] = [];
+      let items: { type: 'instrument' | 'adsr' | 'control'; id: string }[] = [];
 
       // Build items list based on selected panel
       if (state.selectedPanel === 'control') {
@@ -213,8 +239,14 @@ export class GestureHandler {
         ];
       } else if (state.selectedPanel === 'instruments') {
         items = state.instruments.map((i) => ({ type: 'instrument' as const, id: i.id }));
-      } else if (state.selectedPanel === 'effects') {
-        items = state.effects.map((e) => ({ type: 'effect' as const, id: e.id }));
+      } else if (state.selectedPanel === 'adsr') {
+        // ADSR items are the individual parameters, not instruments
+        items = [
+          { type: 'adsr' as const, id: 'attack' },
+          { type: 'adsr' as const, id: 'decay' },
+          { type: 'adsr' as const, id: 'sustain' },
+          { type: 'adsr' as const, id: 'release' },
+        ];
       }
 
       if (items.length === 0) return null;
@@ -246,7 +278,7 @@ export class GestureHandler {
    */
   private handleThumbDown(state: AppState): AppAction | null {
     const actionKey = 'thumbdown_pause';
-    if (!this.debouncer.canTrigger(actionKey, 800)) {
+    if (!this.debouncer.canTrigger(actionKey, this.debounceConfig.thumbDown)) {
       return null;
     }
 
@@ -262,7 +294,7 @@ export class GestureHandler {
    */
   private handleThumbUp(state: AppState): AppAction | null {
     const actionKey = 'thumbup_play';
-    if (!this.debouncer.canTrigger(actionKey, 800)) {
+    if (!this.debouncer.canTrigger(actionKey, this.debounceConfig.thumbUp)) {
       return null;
     }
 
@@ -278,7 +310,7 @@ export class GestureHandler {
    */
   private handleVictory(state: AppState): AppAction | null {
     const actionKey = 'victory_back';
-    if (!this.debouncer.canTrigger(actionKey, 800)) {
+    if (!this.debouncer.canTrigger(actionKey, this.debounceConfig.victory)) {
       return null;
     }
 
@@ -295,7 +327,7 @@ export class GestureHandler {
    */
   private handleILoveYou(state: AppState): AppAction | null {
     const actionKey = 'iloveyou_toggle';
-    if (!this.debouncer.canTrigger(actionKey, 600)) {
+    if (!this.debouncer.canTrigger(actionKey, this.debounceConfig.iLoveYou)) {
       return null;
     }
 
@@ -308,8 +340,6 @@ export class GestureHandler {
     if (state.navigationLayer === 2 && state.selectedItem) {
       if (state.selectedItem.type === 'instrument') {
         return { type: 'TOGGLE_INSTRUMENT', payload: state.selectedItem.id as InstrumentType };
-      } else if (state.selectedItem.type === 'effect') {
-        return { type: 'TOGGLE_EFFECT', payload: state.selectedItem.id as EffectType };
       } else if (state.selectedItem.type === 'control') {
         // For control items, toggle lock or recording
         if (state.selectedItem.id === 'lock') {
@@ -318,6 +348,7 @@ export class GestureHandler {
           return { type: 'TOGGLE_RECORDING' };
         }
       }
+      // Note: ADSR items don't have a toggle state
     }
 
     return null;

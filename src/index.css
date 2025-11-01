@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-border: hsl(240 3.7% 15.9%);
-  --color-input: hsl(240 3.7% 15.9%);
-  --color-ring: hsl(263.4 70% 50.4%);
-  --color-background: hsl(240 10% 3.9%);
-  --color-foreground: hsl(0 0% 98%);
-  --color-primary: hsl(263.4 70% 50.4%);
-  --color-primary-foreground: hsl(0 0% 98%);
-  --color-secondary: hsl(240 3.7% 15.9%);
-  --color-secondary-foreground: hsl(0 0% 98%);
-  --color-destructive: hsl(0 62.8% 30.6%);
-  --color-destructive-foreground: hsl(0 0% 98%);
-  --color-muted: hsl(240 3.7% 15.9%);
-  --color-muted-foreground: hsl(240 5% 64.9%);
-  --color-accent: hsl(240 3.7% 15.9%);
-  --color-accent-foreground: hsl(0 0% 98%);
-  --color-popover: hsl(240 10% 3.9%);
-  --color-popover-foreground: hsl(0 0% 98%);
-  --color-card: hsl(240 10% 3.9%);
-  --color-card-foreground: hsl(0 0% 98%);
+  --color-border: oklch(20% 0.01 200);
+  --color-input: oklch(20% 0.01 200);
+  --color-ring: oklch(58% 0.12 187);
+  --color-background: oklch(12% 0.01 200);
+  --color-foreground: oklch(98% 0 0);
+  --color-primary: oklch(58% 0.12 187);
+  --color-primary-foreground: oklch(98% 0 0);
+  --color-secondary: oklch(20% 0.01 200);
+  --color-secondary-foreground: oklch(98% 0 0);
+  --color-destructive: oklch(45% 0.18 25);
+  --color-destructive-foreground: oklch(98% 0 0);
+  --color-muted: oklch(20% 0.01 200);
+  --color-muted-foreground: oklch(65% 0.01 200);
+  --color-accent: oklch(25% 0.02 187);
+  --color-accent-foreground: oklch(98% 0 0);
+  --color-popover: oklch(12% 0.01 200);
+  --color-popover-foreground: oklch(98% 0 0);
+  --color-card: oklch(15% 0.01 200);
+  --color-card-foreground: oklch(98% 0 0);
 }
 
 * {
@@ -29,7 +29,9 @@
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Courier New', 'Monaco', 'Consolas', 'Liberation Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin: 0;
   padding: 0;
 }
@@ -53,21 +55,21 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: hsl(263.4 70% 50.4%);
+  background: oklch(58% 0.12 187);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 10px hsl(263.4 70% 50.4%);
+  box-shadow: 0 0 10px oklch(58% 0.12 187);
 }
 
 .slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: hsl(263.4 70% 50.4%);
+  background: oklch(58% 0.12 187);
   cursor: pointer;
   border: none;
   transition: all 0.2s;
@@ -75,15 +77,15 @@ body {
 
 .slider::-moz-range-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 10px hsl(263.4 70% 50.4%);
+  box-shadow: 0 0 10px oklch(58% 0.12 187);
 }
 
 .slider:disabled::-webkit-slider-thumb {
-  background: hsl(240 5% 64.9%);
+  background: oklch(65% 0.01 200);
   cursor: not-allowed;
 }
 
 .slider:disabled::-moz-range-thumb {
-  background: hsl(240 5% 64.9%);
+  background: oklch(65% 0.01 200);
   cursor: not-allowed;
 }

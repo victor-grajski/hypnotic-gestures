@@ -18,24 +18,26 @@ const initialState: AppState = {
     { id: 'bass', name: 'Bass', isOn: true, volume: 0.7 },
     { id: 'lead', name: 'Lead', isOn: true, volume: 0.5 },
   ],
-  effects: [
+  adsrEnvelopes: [
     {
-      id: 'reverb',
-      name: 'Reverb',
-      isOn: false,
-      parameters: { wet: 0.3 },
+      id: 'kick',
+      name: 'Kick',
+      envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 0.4 },
     },
     {
-      id: 'delay',
-      name: 'Delay',
-      isOn: false,
-      parameters: { delayTime: 0.25, feedback: 0.4, wet: 0.2 },
+      id: 'hihat',
+      name: 'Hi-Hat',
+      envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.01 },
     },
     {
-      id: 'filter',
-      name: 'Filter',
-      isOn: false,
-      parameters: { frequency: 200, depth: 0.6 },
+      id: 'bass',
+      name: 'Bass',
+      envelope: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.8 },
+    },
+    {
+      id: 'lead',
+      name: 'Lead',
+      envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 0.5 },
     },
   ],
   tempo: 128,
@@ -43,6 +45,15 @@ const initialState: AppState = {
   isLocked: false,
   isRecording: false,
   showQuickGestures: true,
+  debounceConfig: {
+    pointingUp: 600,
+    closedFist: 600,
+    openPalm: 200,
+    thumbDown: 800,
+    thumbUp: 800,
+    victory: 800,
+    iLoveYou: 600,
+  },
 };
 
 // Reducer
@@ -63,8 +74,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
           newState.selectedItem = { type: 'control', id: 'tempo' };
         } else if (state.selectedPanel === 'instruments' && state.instruments.length > 0) {
           newState.selectedItem = { type: 'instrument', id: state.instruments[0].id };
-        } else if (state.selectedPanel === 'effects' && state.effects.length > 0) {
-          newState.selectedItem = { type: 'effect', id: state.effects[0].id };
+        } else if (state.selectedPanel === 'adsr') {
+          // Select the first ADSR parameter (attack)
+          newState.selectedItem = { type: 'adsr', id: 'attack' };
         }
       }
       
@@ -89,13 +101,6 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, instruments };
     }
 
-    case 'TOGGLE_EFFECT': {
-      const effects = state.effects.map((eff) =>
-        eff.id === action.payload ? { ...eff, isOn: !eff.isOn } : eff
-      );
-      return { ...state, effects };
-    }
-
     case 'UPDATE_VOLUME': {
       const instruments = state.instruments.map((inst) =>
         inst.id === action.payload.id
@@ -111,19 +116,19 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'UPDATE_MASTER_VOLUME':
       return { ...state, masterVolume: action.payload };
 
-    case 'UPDATE_EFFECT_PARAM': {
-      const effects = state.effects.map((eff) =>
-        eff.id === action.payload.id
+    case 'UPDATE_ADSR_PARAM': {
+      const adsrEnvelopes = state.adsrEnvelopes.map((adsr) =>
+        adsr.id === action.payload.id
           ? {
-              ...eff,
-              parameters: {
-                ...eff.parameters,
+              ...adsr,
+              envelope: {
+                ...adsr.envelope,
                 [action.payload.param]: action.payload.value,
               },
             }
-          : eff
+          : adsr
       );
-      return { ...state, effects };
+      return { ...state, adsrEnvelopes };
     }
 
     case 'UPDATE_INSTRUMENT_PARAM': {
@@ -149,6 +154,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'TOGGLE_GUIDE':
       return { ...state, showQuickGestures: !state.showQuickGestures };
+
+    case 'UPDATE_DEBOUNCE_CONFIG':
+      return { ...state, debounceConfig: action.payload };
 
     case 'RESET_ALL':
       return {
@@ -218,17 +226,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [state.instruments, audioInitialized]);
 
-  // Sync effects with audio engine (only after initialization)
+  // Sync ADSR envelopes with audio engine (only after initialization)
   useEffect(() => {
     if (!audioInitialized) return;
     const engine = audioEngineRef.current;
-    state.effects.forEach((effect) => {
-      engine.toggleEffect(effect.id, effect.isOn);
-      Object.entries(effect.parameters).forEach(([param, value]) => {
-        engine.setEffectParameter(effect.id, param, value);
+    state.adsrEnvelopes.forEach((adsr) => {
+      Object.entries(adsr.envelope).forEach(([param, value]) => {
+        engine.setADSRParameter(adsr.id, param as keyof typeof adsr.envelope, value);
       });
     });
-  }, [state.effects, audioInitialized]);
+  }, [state.adsrEnvelopes, audioInitialized]);
 
   // Sync tempo with audio engine (only after initialization)
   useEffect(() => {

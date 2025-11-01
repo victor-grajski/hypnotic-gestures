@@ -15,14 +15,6 @@ export function ControlPanel() {
     });
   };
 
-  const handleLockToggle = () => {
-    dispatch({ type: 'TOGGLE_LOCK' });
-  };
-
-  const handleRecordToggle = () => {
-    dispatch({ type: 'TOGGLE_RECORDING' });
-  };
-
   const handleMasterVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const volume = parseFloat(e.target.value);
     dispatch({ type: 'UPDATE_MASTER_VOLUME', payload: volume });
@@ -31,12 +23,6 @@ export function ControlPanel() {
   const handleTempoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const tempo = parseInt(e.target.value, 10);
     dispatch({ type: 'UPDATE_TEMPO', payload: tempo });
-  };
-
-  const handleReset = () => {
-    if (confirm('Reset all settings to default?')) {
-      dispatch({ type: 'RESET_ALL' });
-    }
   };
 
   // Check if this panel is selected in Layer 1
@@ -62,7 +48,7 @@ export function ControlPanel() {
   return (
     <div 
       onClick={handlePanelClick}
-      className={`bg-card rounded-lg border-2 p-6 flex flex-col gap-6 overflow-y-auto h-full transition-all ${
+      className={`bg-card rounded-lg border-2 p-6 flex flex-col gap-6 h-full transition-all ${
         isPanelSelected 
           ? 'border-primary shadow-xl shadow-primary/30' 
           : 'border-border hover:border-primary/50'

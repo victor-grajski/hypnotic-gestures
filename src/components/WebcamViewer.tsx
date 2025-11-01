@@ -79,8 +79,8 @@ export function WebcamViewer({
 
         {/* Play/Pause Indicator */}
         {showQuickGestures && !isLoading && !error && (
-          <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
-            <div className="flex flex-col gap-2">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-border">
+            <div className="flex flex-row gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-xl">👍</span>
                 <span className="text-xs text-muted-foreground">Play</span>

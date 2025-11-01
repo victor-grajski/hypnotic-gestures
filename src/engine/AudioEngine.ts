@@ -1,9 +1,8 @@
 import * as Tone from 'tone';
-import type { InstrumentType, EffectType } from '../types';
+import type { InstrumentType, ADSREnvelope } from '../types';
 
 export class AudioEngine {
   private instruments: Map<InstrumentType, any> = new Map();
-  private effects: Map<EffectType, Tone.ToneAudioNode> = new Map();
   private loops: Map<InstrumentType, Tone.Loop> = new Map();
   private isInitialized = false;
   private masterGain: Tone.Gain | null = null;
@@ -88,41 +87,6 @@ export class AudioEngine {
     this.createLeadPattern();
   }
 
-  private initializeEffects() {
-    if (!this.masterGain) return;
-
-    // Reverb
-    const reverb = new Tone.Reverb({
-      decay: 2.5,
-      preDelay: 0.01,
-      wet: 0.3,
-    });
-    this.effects.set('reverb', reverb);
-
-    // Delay
-    const delay = new Tone.FeedbackDelay({
-      delayTime: '8n',
-      feedback: 0.4,
-      wet: 0.2,
-    });
-    this.effects.set('delay', delay);
-
-    // Filter
-    const filter = new Tone.AutoFilter({
-      frequency: '4n',
-      type: 'sine',
-      depth: 0.6,
-      baseFrequency: 200,
-      octaves: 2.6,
-      wet: 0.5,
-    });
-    this.effects.set('filter', filter);
-
-    // Connect effects to master
-    reverb.connect(this.masterGain);
-    delay.connect(this.masterGain);
-    filter.connect(this.masterGain);
-  }
 
   private createKickPattern() {
     const kick = this.instruments.get('kick') as Tone.MembraneSynth;
@@ -173,7 +137,6 @@ export class AudioEngine {
     // Now create all Tone.js objects AFTER user interaction
     this.masterGain = new Tone.Gain(0.7).toDestination();
     this.initializeInstruments();
-    this.initializeEffects();
     
     this.isInitialized = true;
   }
@@ -229,45 +192,36 @@ export class AudioEngine {
     this.masterGain.gain.value = Math.pow(10, db / 20);
   }
 
-  toggleEffect(id: EffectType, isOn: boolean) {
+  setADSRParameter(id: InstrumentType, param: keyof ADSREnvelope, value: number) {
     if (!this.isInitialized) return;
-    const effect = this.effects.get(id);
-    if (!effect) return;
-
-    if (id === 'filter' && effect instanceof Tone.AutoFilter) {
-      if (isOn) {
-        effect.start();
-      } else {
-        effect.stop();
-      }
-    }
-
-    // Set wet/dry based on on/off state
-    if ('wet' in effect) {
-      (effect as any).wet.value = isOn ? 0.5 : 0;
-    }
-  }
-
-  setEffectParameter(id: EffectType, param: string, value: number) {
-    if (!this.isInitialized) return;
-    const effect = this.effects.get(id);
-    if (!effect) return;
+    const instrument = this.instruments.get(id);
+    if (!instrument) return;
 
     try {
-      if (param === 'wet' && 'wet' in effect) {
-        (effect as any).wet.value = value;
-      } else if (param === 'feedback' && 'feedback' in effect) {
-        (effect as any).feedback.value = value;
-      } else if (param === 'delayTime' && 'delayTime' in effect) {
-        (effect as any).delayTime.value = value;
-      } else if (param === 'frequency' && 'frequency' in effect) {
-        (effect as any).frequency.value = value;
-      } else if (param === 'depth' && 'depth' in effect) {
-        (effect as any).depth.value = value;
+      // Update the envelope parameter
+      if (instrument.envelope && param in instrument.envelope) {
+        instrument.envelope[param] = value;
+      }
+      // Also update filter envelope if it exists (for bass)
+      if (instrument.filterEnvelope && param in instrument.filterEnvelope) {
+        instrument.filterEnvelope[param] = value;
       }
     } catch (err) {
       console.error(`Failed to set ${param} on ${id}:`, err);
     }
+  }
+
+  getADSRParameters(id: InstrumentType): ADSREnvelope | null {
+    if (!this.isInitialized) return null;
+    const instrument = this.instruments.get(id);
+    if (!instrument || !instrument.envelope) return null;
+
+    return {
+      attack: instrument.envelope.attack,
+      decay: instrument.envelope.decay,
+      sustain: instrument.envelope.sustain,
+      release: instrument.envelope.release,
+    };
   }
 
   randomize() {
@@ -280,23 +234,14 @@ export class AudioEngine {
     const bpm = Math.floor(Math.random() * 40) + 110; // 110-150 BPM
     this.adjustTempo(bpm);
 
-    // Randomize effect parameters
-    const reverb = this.effects.get('reverb') as Tone.Reverb;
-    if (reverb) {
-      (reverb as any).wet.value = Math.random() * 0.5;
-    }
-
-    const delay = this.effects.get('delay') as Tone.FeedbackDelay;
-    if (delay) {
-      delay.feedback.value = Math.random() * 0.6;
-      (delay as any).wet.value = Math.random() * 0.4;
-    }
-
-    const filter = this.effects.get('filter') as Tone.AutoFilter;
-    if (filter) {
-      filter.depth.value = Math.random();
-      filter.baseFrequency = Math.random() * 800 + 200;
-    }
+    // Randomize ADSR parameters for each instrument
+    const instrumentIds: InstrumentType[] = ['kick', 'hihat', 'bass', 'lead'];
+    instrumentIds.forEach((id) => {
+      this.setADSRParameter(id, 'attack', Math.random() * 0.1);
+      this.setADSRParameter(id, 'decay', Math.random() * 0.5);
+      this.setADSRParameter(id, 'sustain', Math.random());
+      this.setADSRParameter(id, 'release', Math.random() * 1.0);
+    });
 
     console.log('Randomized audio parameters!');
   }
@@ -305,14 +250,9 @@ export class AudioEngine {
     return this.instruments.get(id);
   }
 
-  getEffect(id: EffectType): Tone.ToneAudioNode | undefined {
-    return this.effects.get(id);
-  }
-
   dispose() {
     this.loops.forEach((loop) => loop.dispose());
     this.instruments.forEach((instrument) => instrument.dispose());
-    this.effects.forEach((effect) => effect.dispose());
     if (this.masterGain) {
       this.masterGain.dispose();
     }

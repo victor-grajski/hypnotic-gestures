@@ -53,27 +53,42 @@ export interface Instrument {
   parameters?: Record<string, number>;
 }
 
-// Effect types
-export type EffectType = 'reverb' | 'delay' | 'filter';
+// ADSR envelope parameters
+export interface ADSREnvelope {
+  attack: number;  // seconds
+  decay: number;   // seconds
+  sustain: number; // 0-1 level
+  release: number; // seconds
+}
 
-export interface Effect {
-  id: EffectType;
+export interface InstrumentADSR {
+  id: InstrumentType;
   name: string;
-  isOn: boolean;
-  parameters: Record<string, number>;
+  envelope: ADSREnvelope;
 }
 
 // Selected item
 export interface SelectedItem {
-  type: 'instrument' | 'effect' | 'control';
+  type: 'instrument' | 'adsr' | 'control';
   id: string;
 }
 
 // Panel types for navigation
-export type PanelType = 'control' | 'instruments' | 'effects';
+export type PanelType = 'control' | 'instruments' | 'adsr';
 
 // Navigation layer
 export type NavigationLayer = 1 | 2;
+
+// Debounce configuration for gesture actions
+export interface DebounceConfig {
+  pointingUp: number;      // Cycling items
+  closedFist: number;      // Enter panel
+  openPalm: number;        // Adjust values
+  thumbDown: number;       // Pause
+  thumbUp: number;         // Play
+  victory: number;         // Back to Layer 1
+  iLoveYou: number;        // Toggle
+}
 
 // App state
 export interface AppState {
@@ -83,12 +98,13 @@ export interface AppState {
   selectedPanel: PanelType | null;
   selectedItem: SelectedItem | null;
   instruments: Instrument[];
-  effects: Effect[];
+  adsrEnvelopes: InstrumentADSR[];
   tempo: number; // BPM
   masterVolume: number; // 0-1
   isLocked: boolean;
   isRecording: boolean;
   showQuickGestures: boolean;
+  debounceConfig: DebounceConfig;
 }
 
 // Actions
@@ -99,12 +115,12 @@ export type AppAction =
   | { type: 'SET_SELECTED_PANEL'; payload: PanelType | null }
   | { type: 'SELECT_ITEM'; payload: SelectedItem | null }
   | { type: 'TOGGLE_INSTRUMENT'; payload: InstrumentType }
-  | { type: 'TOGGLE_EFFECT'; payload: EffectType }
   | { type: 'UPDATE_VOLUME'; payload: { id: string; volume: number } }
   | { type: 'UPDATE_TEMPO'; payload: number }
   | { type: 'UPDATE_MASTER_VOLUME'; payload: number }
-  | { type: 'UPDATE_EFFECT_PARAM'; payload: { id: EffectType; param: string; value: number } }
+  | { type: 'UPDATE_ADSR_PARAM'; payload: { id: InstrumentType; param: keyof ADSREnvelope; value: number } }
   | { type: 'UPDATE_INSTRUMENT_PARAM'; payload: { id: InstrumentType; param: string; value: number } }
+  | { type: 'UPDATE_DEBOUNCE_CONFIG'; payload: DebounceConfig }
   | { type: 'TOGGLE_LOCK' }
   | { type: 'TOGGLE_RECORDING' }
   | { type: 'TOGGLE_GUIDE' }

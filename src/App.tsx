@@ -1,16 +1,19 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { useGestureRecognition } from './hooks/useGestureRecognition';
 import { GestureHandler } from './engine/GestureHandler';
 import { WebcamViewer } from './components/WebcamViewer';
 import { ControlPanel } from './components/ControlPanel';
 import { InstrumentPanel } from './components/InstrumentPanel';
-import { EffectsPanel } from './components/EffectsPanel';
+import { ADSRPanel } from './components/ADSRPanel';
+import { DebounceControlPanel } from './components/DebounceControlPanel';
+import { MinimumScreenSizeOverlay } from './components/MinimumScreenSizeOverlay';
+import type { DebounceConfig } from './types';
 import './index.css';
 
 function AppContent() {
   const { state, dispatch, audioEngine } = useApp();
-  const gestureHandlerRef = useRef(new GestureHandler(500));
+  const gestureHandlerRef = useRef(new GestureHandler(state.debounceConfig));
 
   const {
     videoRef,
@@ -21,6 +24,11 @@ function AppContent() {
     isLoading,
     error,
   } = useGestureRecognition();
+
+  // Update gesture handler when debounce config changes
+  useEffect(() => {
+    gestureHandlerRef.current.updateDebounceConfig(state.debounceConfig);
+  }, [state.debounceConfig]);
 
   // Process gestures and dispatch actions
   useEffect(() => {
@@ -50,8 +58,13 @@ function AppContent() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [dispatch]);
 
+  // Handle debounce config changes
+  const handleDebounceConfigChange = useCallback((config: DebounceConfig) => {
+    dispatch({ type: 'UPDATE_DEBOUNCE_CONFIG', payload: config });
+  }, [dispatch]);
+
   return (
-    <div className="h-screen bg-background p-4 flex flex-col overflow-hidden">
+    <div className="h-screen bg-background p-4 flex flex-col overflow-hidden min-w-[1200px]">
       <div className="max-w-[1920px] mx-auto flex-1 flex flex-col w-full min-h-0">
         {/* Header */}
         {/* <header className="mb-4 text-center">
@@ -66,7 +79,7 @@ function AppContent() {
         </header> */}
 
         {/* 2x2 Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
+        <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1 min-h-0">
           {/* Top Left - Webcam Viewer */}
           <WebcamViewer
             videoRef={videoRef}
@@ -85,10 +98,19 @@ function AppContent() {
           {/* Bottom Left - Instruments */}
           <InstrumentPanel />
 
-          {/* Bottom Right - Effects */}
-          <EffectsPanel />
+          {/* Bottom Right - ADSR Envelopes */}
+          <ADSRPanel />
         </div>
       </div>
+      
+      {/* Debounce Control Panel - Toggle with 'C' key */}
+      <DebounceControlPanel
+        config={state.debounceConfig}
+        onConfigChange={handleDebounceConfigChange}
+      />
+      
+      {/* Minimum Screen Size Overlay */}
+      <MinimumScreenSizeOverlay />
     </div>
   );
 }
