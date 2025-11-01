@@ -1,11 +1,24 @@
 import * as Tone from 'tone';
 import type { InstrumentType, ADSREnvelope } from '../types';
 
+interface InitialInstrumentState {
+  id: InstrumentType;
+  isOn: boolean;
+  volume: number;
+}
+
+interface InitialADSRState {
+  id: InstrumentType;
+  envelope: ADSREnvelope;
+}
+
 export class AudioEngine {
   private instruments: Map<InstrumentType, any> = new Map();
   private loops: Map<InstrumentType, Tone.Loop> = new Map();
   private isInitialized = false;
   private masterGain: Tone.Gain | null = null;
+  private initialInstrumentStates: Map<InstrumentType, InitialInstrumentState> = new Map();
+  private initialADSRStates: Map<InstrumentType, ADSREnvelope> = new Map();
 
   constructor() {
     // Don't create any Tone.js objects yet - wait for user interaction
@@ -29,18 +42,28 @@ export class AudioEngine {
     }).connect(this.masterGain);
     this.instruments.set('kick', kick);
 
-    // Hi-hat - metallic, crisp
-    const hihat = new Tone.MetalSynth({
+    // Hi-hat - Berlin techno style open hat with noise
+    const hihatReverb = new Tone.Reverb({
+      decay: 2.5,
+      wet: 0.3,
+    }).connect(this.masterGain);
+    
+    const hihatFilter = new Tone.Filter({
+      type: 'highpass',
+      frequency: 8000,  // High-pass to keep only the bright part
+      rolloff: -24,
+    }).connect(hihatReverb);
+    
+    const hihat = new Tone.NoiseSynth({
+      noise: { type: 'white' },
       envelope: {
         attack: 0.001,
-        decay: 0.1,
-        release: 0.01,
+        decay: 0.25,
+        sustain: 0.1,
+        release: 0.3,
       },
-      harmonicity: 5.1,
-      modulationIndex: 32,
-      resonance: 4000,
-      octaves: 1.5,
-    }).connect(this.masterGain);
+    }).connect(hihatFilter);
+    
     this.instruments.set('hihat', hihat);
 
     // Bass synth - deep, pulsing
@@ -54,8 +77,8 @@ export class AudioEngine {
       envelope: {
         attack: 0.01,
         decay: 0.2,
-        sustain: 0.3,
-        release: 0.8,
+        sustain: 1.0,
+        release: 1.0,
       },
       filterEnvelope: {
         attack: 0.01,
@@ -68,14 +91,27 @@ export class AudioEngine {
     }).connect(this.masterGain);
     this.instruments.set('bass', bass);
 
-    // Lead synth - bright, melodic
-    const lead = new Tone.Synth({
-      oscillator: { type: 'square' },
+    // Lead synth - acid techno style with resonant filter
+    const lead = new Tone.MonoSynth({
+      oscillator: { type: 'sawtooth' },
+      filter: {
+        Q: 8,  // High resonance for that squelchy acid sound
+        type: 'lowpass',
+        rolloff: -24,
+      },
       envelope: {
         attack: 0.005,
-        decay: 0.1,
-        sustain: 0.3,
-        release: 0.5,
+        decay: 0.3,
+        sustain: 0.0,  // Punchy, no sustain
+        release: 0.3,
+      },
+      filterEnvelope: {
+        attack: 0.01,
+        decay: 2.0,
+        sustain: 1.0,
+        release: 0.8,
+        baseFrequency: 200,  // Start low
+        octaves: 4,  // Sweep up 4 octaves for that acid sweep
       },
     }).connect(this.masterGain);
     this.instruments.set('lead', lead);
@@ -85,6 +121,28 @@ export class AudioEngine {
     this.createHihatPattern();
     this.createBassPattern();
     this.createLeadPattern();
+    
+    // Apply initial volumes and ADSR values from AppContext
+    this.applyInitialStates();
+  }
+  
+  private applyInitialStates() {
+    // Apply instrument volumes
+    this.initialInstrumentStates.forEach((state) => {
+      this.setInstrumentVolume(state.id, state.volume);
+    });
+    
+    // Apply ADSR envelopes
+    this.initialADSRStates.forEach((envelope, id) => {
+      Object.entries(envelope).forEach(([param, value]) => {
+        this.setADSRParameter(id, param as keyof ADSREnvelope, value);
+      });
+    });
+    
+    // Apply isOn states (start/stop loops)
+    this.initialInstrumentStates.forEach((state) => {
+      this.toggleInstrument(state.id, state.isOn);
+    });
   }
 
 
@@ -99,26 +157,26 @@ export class AudioEngine {
   private createHihatPattern() {
     const hihat = this.instruments.get('hihat') as Tone.MetalSynth;
     const loop = new Tone.Loop((time) => {
-      hihat.triggerAttackRelease('16n', time);
+      hihat.triggerAttackRelease('8n', time);
     }, '8n');
     this.loops.set('hihat', loop);
   }
 
   private createBassPattern() {
     const bass = this.instruments.get('bass') as Tone.MonoSynth;
-    const notes = ['C2', 'C2', 'G1', 'C2'];
-    let noteIndex = 0;
+    const note = 'C1';
 
+    // Trigger one constant sustained bass note
     const loop = new Tone.Loop((time) => {
-      bass.triggerAttackRelease(notes[noteIndex % notes.length], '8n', time);
-      noteIndex++;
-    }, '4n');
+      // Use a very long duration so the note sustains continuously
+      bass.triggerAttackRelease(note, '3n', time);
+    }, '1m');  // Retrigger every measure to maintain the note
     this.loops.set('bass', loop);
   }
 
   private createLeadPattern() {
-    const lead = this.instruments.get('lead') as Tone.Synth;
-    const notes = ['C4', 'E4', 'G4', 'A4', 'G4', 'E4'];
+    const lead = this.instruments.get('lead') as Tone.MonoSynth;
+    const notes = ['C2'];
     let noteIndex = 0;
 
     const loop = new Tone.Loop((time) => {
@@ -128,14 +186,39 @@ export class AudioEngine {
     this.loops.set('lead', loop);
   }
 
-  async initialize() {
+  async initialize(
+    initialTempo?: number,
+    initialMasterVolume?: number,
+    instruments?: InitialInstrumentState[],
+    adsrEnvelopes?: InitialADSRState[]
+  ) {
     if (this.isInitialized) return;
     
     await Tone.start();
-    Tone.getTransport().bpm.value = 128;
     
-    // Now create all Tone.js objects AFTER user interaction
-    this.masterGain = new Tone.Gain(0.7).toDestination();
+    // Set tempo from AppContext or default
+    Tone.getTransport().bpm.value = initialTempo ?? 138;
+    
+    // Store initial instrument and ADSR states
+    if (instruments) {
+      instruments.forEach((inst) => {
+        this.initialInstrumentStates.set(inst.id, inst);
+      });
+    }
+    
+    if (adsrEnvelopes) {
+      adsrEnvelopes.forEach((adsr) => {
+        this.initialADSRStates.set(adsr.id, adsr.envelope);
+      });
+    }
+    
+    // Create master gain
+    this.masterGain = new Tone.Gain(1.0).toDestination();
+    if (initialMasterVolume !== undefined) {
+      this.setMasterVolume(initialMasterVolume);
+    }
+    
+    // Create instruments and apply initial states
     this.initializeInstruments();
     
     this.isInitialized = true;

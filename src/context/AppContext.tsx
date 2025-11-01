@@ -15,8 +15,8 @@ const initialState: AppState = {
   adsrEditingInstrumentId: null, // Track which instrument is being edited in ADSR panel
   instruments: [
     { id: 'kick', name: 'Kick', isOn: true, volume: 0.8 },
-    { id: 'hihat', name: 'Hi-Hat', isOn: true, volume: 0.6 },
-    { id: 'bass', name: 'Bass', isOn: true, volume: 0.7 },
+    { id: 'hihat', name: 'Hi-Hat', isOn: true, volume: 0.55 },
+    { id: 'bass', name: 'Bass', isOn: true, volume: 0.6 },
     { id: 'lead', name: 'Lead', isOn: true, volume: 0.5 },
   ],
   adsrEnvelopes: [
@@ -28,28 +28,28 @@ const initialState: AppState = {
     {
       id: 'hihat',
       name: 'Hi-Hat',
-      envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.01 },
+      envelope: { attack: 0.001, decay: 0.25, sustain: 0.1, release: 0.3 },
     },
     {
       id: 'bass',
       name: 'Bass',
-      envelope: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.8 },
+      envelope: { attack: 0.0, decay: 0.0, sustain: 1.0, release: 2.0 },
     },
     {
       id: 'lead',
       name: 'Lead',
-      envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 0.5 },
+      envelope: { attack: 0.005, decay: 2.0, sustain: 1.0, release: 1.5 },
     },
   ],
-  tempo: 128,
-  masterVolume: 0.7,
+  tempo: 138,
+  masterVolume: 0.85,
   isLocked: false,
   isRecording: false,
   showQuickGestures: true,
   debounceConfig: {
     pointingUp: 1000,
     closedFist: 600,
-    openPalm: 200,
+    openPalm: 500,
     thumbDown: 800,
     thumbUp: 800,
     victory: 800,
@@ -211,7 +211,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Function to initialize audio (must be called from user interaction)
   const initializeAudio = async () => {
     if (!audioInitialized) {
-      await audioEngineRef.current.initialize();
+      // Pass ALL initial values from AppContext to AudioEngine as single source of truth
+      await audioEngineRef.current.initialize(
+        state.tempo,
+        state.masterVolume,
+        state.instruments,
+        state.adsrEnvelopes
+      );
       setAudioInitialized(true);
     }
   };
