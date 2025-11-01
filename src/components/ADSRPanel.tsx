@@ -4,9 +4,9 @@ import type { ADSREnvelope, InstrumentType } from '../types';
 export function ADSRPanel() {
   const { state, dispatch } = useApp();
 
-  // Get the currently selected instrument
-  const selectedInstrumentId = 
-    state.selectedItem?.type === 'instrument' ? state.selectedItem.id : null;
+  // Get the currently selected instrument from state
+  // This persists when cycling through ADSR params
+  const selectedInstrumentId = state.adsrEditingInstrumentId;
   
   const selectedADSR = selectedInstrumentId
     ? state.adsrEnvelopes.find((adsr) => adsr.id === selectedInstrumentId)

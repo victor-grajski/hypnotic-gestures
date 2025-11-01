@@ -137,10 +137,15 @@ export class GestureHandler {
     } else if (state.selectedItem.type === 'adsr') {
       // The selected item ID is now the parameter name (attack, decay, sustain, release)
       const paramKey = state.selectedItem.id as keyof ADSREnvelope;
-      const leadADSR = state.adsrEnvelopes.find((e) => e.id === 'lead');
       
-      if (leadADSR && paramKey in leadADSR.envelope) {
-        const currentValue = leadADSR.envelope[paramKey];
+      // Use the tracked editing instrument ID
+      const editingInstrumentId = state.adsrEditingInstrumentId;
+      if (!editingInstrumentId) return null;
+      
+      const editingADSR = state.adsrEnvelopes.find((e) => e.id === editingInstrumentId);
+      
+      if (editingADSR && paramKey in editingADSR.envelope) {
+        const currentValue = editingADSR.envelope[paramKey];
         
         // Scale adjustment based on parameter
         let scaledAdjustment = adjustment;
@@ -156,7 +161,7 @@ export class GestureHandler {
         return {
           type: 'UPDATE_ADSR_PARAM',
           payload: {
-            id: 'lead',
+            id: editingInstrumentId,
             param: paramKey,
             value: newValue,
           },

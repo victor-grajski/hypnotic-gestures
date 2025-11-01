@@ -12,6 +12,7 @@ const initialState: AppState = {
   navigationLayer: 1,
   selectedPanel: 'control', // Start with control panel selected
   selectedItem: null,
+  adsrEditingInstrumentId: null, // Track which instrument is being edited in ADSR panel
   instruments: [
     { id: 'kick', name: 'Kick', isOn: true, volume: 0.8 },
     { id: 'hihat', name: 'Hi-Hat', isOn: true, volume: 0.6 },
@@ -73,17 +74,24 @@ function appReducer(state: AppState, action: AppAction): AppState {
         if (state.selectedPanel === 'control') {
           newState.selectedItem = { type: 'control', id: 'tempo' };
         } else if (state.selectedPanel === 'instruments' && state.instruments.length > 0) {
-          newState.selectedItem = { type: 'instrument', id: state.instruments[0].id };
+          const firstInstrumentId = state.instruments[0].id;
+          newState.selectedItem = { type: 'instrument', id: firstInstrumentId };
+          // Also set this as the ADSR editing instrument
+          newState.adsrEditingInstrumentId = firstInstrumentId as any;
         } else if (state.selectedPanel === 'adsr') {
-          // Select the first ADSR parameter (attack)
+          // Always select 'attack' parameter when entering ADSR panel
+          // (instrument is tracked separately in adsrEditingInstrumentId)
           newState.selectedItem = { type: 'adsr', id: 'attack' };
         }
       }
       
-      // When returning to Layer 1, clear the selected item
-      if (action.payload === 1) {
+    // When returning to Layer 1, clear the selected item unless it's an instrument
+    // (instruments should stay selected so user can tweak them in ADSR panel)
+    if (action.payload === 1) {
+      if (state.selectedItem?.type !== 'instrument') {
         newState.selectedItem = null;
       }
+    }
       
       return newState;
     }
@@ -91,8 +99,14 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_SELECTED_PANEL':
       return { ...state, selectedPanel: action.payload };
 
-    case 'SELECT_ITEM':
-      return { ...state, selectedItem: action.payload };
+    case 'SELECT_ITEM': {
+      const newState = { ...state, selectedItem: action.payload };
+      // Track which instrument is being edited for ADSR panel
+      if (action.payload?.type === 'instrument') {
+        newState.adsrEditingInstrumentId = action.payload.id as any;
+      }
+      return newState;
+    }
 
     case 'TOGGLE_INSTRUMENT': {
       const instruments = state.instruments.map((inst) =>

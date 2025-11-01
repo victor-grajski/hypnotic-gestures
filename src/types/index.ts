@@ -97,6 +97,7 @@ export interface AppState {
   navigationLayer: NavigationLayer;
   selectedPanel: PanelType | null;
   selectedItem: SelectedItem | null;
+  adsrEditingInstrumentId: InstrumentType | null; // Track which instrument is being edited in ADSR panel
   instruments: Instrument[];
   adsrEnvelopes: InstrumentADSR[];
   tempo: number; // BPM
