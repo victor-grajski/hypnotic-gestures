@@ -237,20 +237,22 @@ export class GestureHandler {
       // Build items list based on selected panel
       if (state.selectedPanel === 'control') {
         items = [
-          { type: 'control', id: 'tempo' },
           { type: 'control', id: 'masterVolume' },
-          { type: 'control', id: 'lock' },
-          { type: 'control', id: 'recording' },
+          { type: 'control', id: 'tempo' },
         ];
       } else if (state.selectedPanel === 'instruments') {
-        items = state.instruments.map((i) => ({ type: 'instrument' as const, id: i.id }));
+        // Custom cycling order: kick -> hi-hat -> lead -> bass
+        const cyclingOrder = ['kick', 'hihat', 'lead', 'bass'];
+        items = cyclingOrder
+          .filter((id) => state.instruments.some((i) => i.id === id))
+          .map((id) => ({ type: 'instrument' as const, id }));
       } else if (state.selectedPanel === 'adsr') {
-        // ADSR items are the individual parameters, not instruments
+        // Custom cycling order: attack -> decay -> release -> sustain
         items = [
           { type: 'adsr' as const, id: 'attack' },
           { type: 'adsr' as const, id: 'decay' },
-          { type: 'adsr' as const, id: 'sustain' },
           { type: 'adsr' as const, id: 'release' },
+          { type: 'adsr' as const, id: 'sustain' },
         ];
       }
 

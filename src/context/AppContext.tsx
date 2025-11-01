@@ -72,7 +72,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       // When entering Layer 2, automatically select the first item in the selected panel
       if (action.payload === 2 && state.selectedPanel) {
         if (state.selectedPanel === 'control') {
-          newState.selectedItem = { type: 'control', id: 'tempo' };
+          newState.selectedItem = { type: 'control', id: 'masterVolume' };
         } else if (state.selectedPanel === 'instruments' && state.instruments.length > 0) {
           const firstInstrumentId = state.instruments[0].id;
           newState.selectedItem = { type: 'instrument', id: firstInstrumentId };
