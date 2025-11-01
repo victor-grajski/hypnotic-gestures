@@ -45,7 +45,7 @@ export function WebcamViewer({
           <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-              <p className="text-foreground">Loading gesture recognition...</p>
+              <p className="text-muted-foreground">Loading gesture recognition...</p>
             </div>
           </div>
         )}
@@ -55,7 +55,7 @@ export function WebcamViewer({
           <div className="absolute inset-0 bg-destructive/20 flex items-center justify-center">
             <div className="bg-card border border-destructive rounded-lg p-6 max-w-md">
               <h3 className="text-destructive font-semibold mb-2">Error</h3>
-              <p className="text-foreground text-sm">{error}</p>
+              <p className="text-muted-foreground text-sm">{error}</p>
             </div>
           </div>
         )}

@@ -66,14 +66,9 @@ export function ADSRPanel() {
       } ${state.navigationLayer === 1 ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-center gap-2">
-        <h2 className="text-2xl font-bold text-foreground">
+        <h2 className="text-2xl font-bold text-muted-foreground">
           {selectedADSR ? `ADSR - ${selectedADSR.name}` : 'ADSR'}
         </h2>
-        {isPanelSelected && (
-          <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full font-semibold">
-            PANEL SELECTED
-          </span>
-        )}
       </div>
 
       {/* Empty State */}
@@ -101,16 +96,9 @@ export function ADSRPanel() {
                     : 'border-border'
                 }`}
               >
-                {/* Selected Indicator */}
-                {isSelected(param) && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs">
-                    ✓
-                  </div>
-                )}
-
                 {/* Parameter Header */}
                 <div className="mb-3">
-                  <h3 className="text-lg font-bold text-foreground capitalize">
+                  <h3 className="text-lg font-bold text-muted-foreground capitalize">
                     {param}
                   </h3>
                   <p className="text-2xl font-mono text-primary">

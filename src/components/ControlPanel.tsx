@@ -56,12 +56,7 @@ export function ControlPanel() {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold text-foreground">Controls</h2>
-          {isPanelSelected && (
-            <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full font-semibold">
-              PANEL SELECTED
-            </span>
-          )}
+          <h2 className="text-2xl font-bold text-muted-foreground">Controls</h2>
         </div>
         {/* {state.isRecording && (
           <div className="flex items-center gap-2 text-destructive animate-pulse">
@@ -82,8 +77,8 @@ export function ControlPanel() {
             onClick={handlePlayPause}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-all ${
               state.playbackState === 'playing'
-                ? 'bg-primary text-primary-foreground hover:opacity-90'
-                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                ? 'bg-[oklch(30%_0.01_200)] text-primary-foreground hover:opacity-90'
+                : 'bg-[oklch(55%_0.11_188)] text-primary-foreground hover:opacity-90'
             }`}
           >
             {state.playbackState === 'playing' ? '⏸ Pause' : '▶ Play'}
@@ -98,19 +93,16 @@ export function ControlPanel() {
       </div>
 
       {/* Master Volume */}
-      <div className={`space-y-3 p-3 rounded-lg transition-all ${
+      <div className={`space-y-3 p-3 rounded-lg border-2 transition-all ${
         isItemSelected('masterVolume') 
-          ? 'bg-primary/10 border-2 border-primary' 
-          : 'bg-transparent border-2 border-transparent'
+          ? 'border-primary shadow-lg shadow-primary/20' 
+          : 'border-border'
       }`}>
         <div className="flex items-center justify-between">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
             Master Volume
-            {isItemSelected('masterVolume') && (
-              <span className="ml-2 text-xs text-primary">← SELECTED</span>
-            )}
           </label>
-          <span className="text-sm text-foreground font-mono">
+          <span className="text-sm text-muted-foreground font-mono">
             {Math.round(state.masterVolume * 100)}%
           </span>
         </div>
@@ -126,19 +118,16 @@ export function ControlPanel() {
       </div>
 
       {/* Tempo Control */}
-      <div className={`space-y-3 p-3 rounded-lg transition-all ${
+      <div className={`space-y-3 p-3 rounded-lg border-2 transition-all ${
         isItemSelected('tempo') 
-          ? 'bg-primary/10 border-2 border-primary' 
-          : 'bg-transparent border-2 border-transparent'
+          ? 'border-primary shadow-lg shadow-primary/20' 
+          : 'border-border'
       }`}>
         <div className="flex items-center justify-between">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
             Tempo
-            {isItemSelected('tempo') && (
-              <span className="ml-2 text-xs text-primary">← SELECTED</span>
-            )}
           </label>
-          <span className="text-sm text-foreground font-mono">{state.tempo} BPM</span>
+          <span className="text-sm text-muted-foreground font-mono">{state.tempo} BPM</span>
         </div>
         <input
           type="range"
@@ -195,25 +184,25 @@ export function ControlPanel() {
         <div className="text-xs text-muted-foreground space-y-1">
           <div className="flex justify-between">
             <span>Status:</span>
-            <span className="text-foreground font-mono">
+            <span className="text-muted-foreground font-mono">
               {state.playbackState === 'playing' ? '▶ Playing' : '⏸ Paused'}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Nav Layer:</span>
-            <span className="text-foreground font-mono">
+            <span className="text-muted-foreground font-mono">
               {state.navigationLayer === 1 ? 'Layer 1 (Panels)' : 'Layer 2 (Items)'}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Selected Panel:</span>
-            <span className="text-foreground font-mono">
+            <span className="text-muted-foreground font-mono">
               {state.selectedPanel || 'None'}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Selected Item:</span>
-            <span className="text-foreground font-mono">
+            <span className="text-muted-foreground font-mono">
               {state.selectedItem
                 ? `${state.selectedItem.id}`
                 : 'None'}
@@ -221,13 +210,13 @@ export function ControlPanel() {
           </div>
           <div className="flex justify-between">
             <span>Active Instruments:</span>
-            <span className="text-foreground font-mono">
+            <span className="text-muted-foreground font-mono">
               {state.instruments.filter((i) => i.isOn).length} / {state.instruments.length}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Active Effects:</span>
-            <span className="text-foreground font-mono">
+            <span className="text-muted-foreground font-mono">
               {state.effects.filter((e) => e.isOn).length} / {state.effects.length}
             </span>
           </div>

@@ -68,7 +68,7 @@ function AppContent() {
       <div className="max-w-[1920px] mx-auto flex-1 flex flex-col w-full min-h-0">
         {/* Header */}
         {/* <header className="mb-4 text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
+          <h1 className="text-4xl font-bold text-muted-foreground mb-2">
             🎵 Hypnotic Gestures
           </h1>
           <p className="text-muted-foreground">

@@ -42,12 +42,7 @@ export function InstrumentPanel() {
       } ${state.navigationLayer === 1 ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-center gap-2">
-        <h2 className="text-2xl font-bold text-foreground">Instruments</h2>
-        {isPanelSelected && (
-          <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full font-semibold">
-            PANEL SELECTED
-          </span>
-        )}
+        <h2 className="text-2xl font-bold text-muted-foreground">Instruments</h2>
       </div>
       
       <div className="flex-1 grid grid-cols-2 gap-3">
@@ -61,13 +56,6 @@ export function InstrumentPanel() {
                 : 'border-border'
             }`}
           >
-            {/* Selected Indicator */}
-            {isSelected(instrument.id) && (
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs">
-                ✓
-              </div>
-            )}
-
             <div className="p-3 space-y-2">
               {/* Header */}
               <div className="flex items-center justify-between">
@@ -86,17 +74,14 @@ export function InstrumentPanel() {
                     {instrument.isOn ? '●' : '○'}
                   </button>
                   <div>
-                    <h3 className="text-base font-semibold text-foreground">
+                    <h3 className="text-base font-semibold text-muted-foreground">
                       {instrument.name}
                     </h3>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                      {instrument.id}
-                    </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">Volume</div>
-                  <div className="text-sm font-mono text-foreground">
+                  <div className="text-sm font-mono text-muted-foreground">
                     {Math.round(instrument.volume * 100)}%
                   </div>
                 </div>
@@ -118,13 +103,6 @@ export function InstrumentPanel() {
                   className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer slider disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
-
-              {/* Selected Indicator */}
-              {isSelected(instrument.id) && (
-                <div className="text-xs text-center">
-                  <span className="text-primary font-semibold">Selected</span>
-                </div>
-              )}
             </div>
           </div>
         ))}

@@ -34,14 +34,14 @@ export function MinimumScreenSizeOverlay() {
       <div className="bg-card border-2 border-border rounded-lg p-8 max-w-md mx-4 shadow-2xl">
         <div className="text-center space-y-4">
           <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-foreground">
+          <h2 className="text-2xl font-bold text-muted-foreground">
             Screen Too Small
           </h2>
           <p className="text-muted-foreground">
             This application requires a minimum screen size to function properly.
           </p>
           <div className="bg-secondary rounded-md p-4 mt-4">
-            <p className="font-semibold text-foreground mb-2">
+            <p className="font-semibold text-muted-foreground mb-2">
               Minimum Required:
             </p>
             <p className="text-lg font-mono text-primary">
@@ -49,7 +49,7 @@ export function MinimumScreenSizeOverlay() {
             </p>
           </div>
           <div className="bg-secondary rounded-md p-4 mt-2">
-            <p className="font-semibold text-foreground mb-2">
+            <p className="font-semibold text-muted-foreground mb-2">
               Current Size:
             </p>
             <p className="text-lg font-mono text-muted-foreground">

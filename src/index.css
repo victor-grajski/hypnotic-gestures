@@ -22,10 +22,6 @@
   --color-card-foreground: oklch(98% 0 0);
 }
 
-* {
-  border-color: var(--color-border);
-}
-
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
