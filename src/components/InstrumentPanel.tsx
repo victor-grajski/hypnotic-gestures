@@ -22,8 +22,8 @@ export function InstrumentPanel() {
     );
   };
 
-  // Check if this panel is selected in Layer 1
-  const isPanelSelected = state.navigationLayer === 1 && state.selectedPanel === 'instruments';
+  // Check if this panel is selected (in any layer)
+  const isPanelSelected = state.selectedPanel === 'instruments';
 
   const handlePanelClick = () => {
     // Only allow selecting panel in Layer 1

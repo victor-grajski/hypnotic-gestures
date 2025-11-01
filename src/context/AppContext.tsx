@@ -47,13 +47,13 @@ const initialState: AppState = {
   isRecording: false,
   showQuickGestures: true,
   debounceConfig: {
-    pointingUp: 600,
+    pointingUp: 1000,
     closedFist: 600,
     openPalm: 200,
     thumbDown: 800,
     thumbUp: 800,
     victory: 800,
-    iLoveYou: 600,
+    iLoveYou: 1000,
   },
 };
 

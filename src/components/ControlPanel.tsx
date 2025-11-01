@@ -25,8 +25,8 @@ export function ControlPanel() {
     dispatch({ type: 'UPDATE_TEMPO', payload: tempo });
   };
 
-  // Check if this panel is selected in Layer 1
-  const isPanelSelected = state.navigationLayer === 1 && state.selectedPanel === 'control';
+  // Check if this panel is selected (in any layer)
+  const isPanelSelected = state.selectedPanel === 'control';
   
   // Check if an item in this panel is selected in Layer 2
   const isItemSelected = (itemId: string) => {
