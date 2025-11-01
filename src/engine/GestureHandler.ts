@@ -185,7 +185,8 @@ export class GestureHandler {
 
   /**
    * Pointing_Up: Cycle based on which side of frame hand is on
-   * Left side = previous, Right side = next
+   * 2x2 Layout: Left side = next panel, Right side = previous panel
+   * 1+3 Layout: Right side = next panel, Left side = previous panel
    */
   private handlePointingUp(third: FrameThird, state: AppState): AppAction | null {
     const actionKey = `point_${third}`;
@@ -198,7 +199,8 @@ export class GestureHandler {
     console.log('👆 Pointing_Up detected:', { 
       third, 
       navigationLayer: state.navigationLayer, 
-      selectedPanel: state.selectedPanel 
+      selectedPanel: state.selectedPanel,
+      layout: state.layout
     });
 
     // Only respond to left/right sides, not center
@@ -217,16 +219,25 @@ export class GestureHandler {
       }
       
       let newIndex = currentIndex;
-      // Left side = next panel
+      
+      // 1+3 Layout: Right = forward, Left = backward
+      if (state.layout === '1+3') {
+        if (third === 'right') {
+          newIndex = (currentIndex + 1) % panels.length;
+        } else if (third === 'left') {
+          newIndex = currentIndex > 0 ? currentIndex - 1 : panels.length - 1;
+        }
+      }
+      // 2x2 Layout: Left = forward, Right = backward (original behavior)
+      else {
       if (third === 'left') {
         newIndex = (currentIndex + 1) % panels.length;
+        } else if (third === 'right') {
+          newIndex = currentIndex > 0 ? currentIndex - 1 : panels.length - 1;
       } 
-      // Right side = previous panel
-      else if (third === 'right') {
-        newIndex = currentIndex > 0 ? currentIndex - 1 : panels.length - 1;
       }
       
-      console.log('✅ Layer 1 navigation:', { currentIndex, newIndex, newPanel: panels[newIndex] });
+      console.log('✅ Layer 1 navigation:', { currentIndex, newIndex, newPanel: panels[newIndex], layout: state.layout });
       return { type: 'SET_SELECTED_PANEL', payload: panels[newIndex] };
     }
 
@@ -241,19 +252,37 @@ export class GestureHandler {
           { type: 'control', id: 'tempo' },
         ];
       } else if (state.selectedPanel === 'instruments') {
-        // Custom cycling order: kick -> hi-hat -> lead -> bass
-        const cyclingOrder = ['kick', 'hihat', 'lead', 'bass'];
+        // Different cycling orders based on layout
+        let cyclingOrder: string[];
+        if (state.layout === '1+3') {
+          // 1+3 Layout: kick -> hi-hat -> bass -> lead
+          cyclingOrder = ['kick', 'hihat', 'bass', 'lead'];
+        } else {
+          // 2x2 Layout: kick -> hi-hat -> lead -> bass
+          cyclingOrder = ['kick', 'hihat', 'lead', 'bass'];
+        }
         items = cyclingOrder
           .filter((id) => state.instruments.some((i) => i.id === id))
           .map((id) => ({ type: 'instrument' as const, id }));
       } else if (state.selectedPanel === 'adsr') {
-        // Custom cycling order: attack -> decay -> release -> sustain
-        items = [
-          { type: 'adsr' as const, id: 'attack' },
-          { type: 'adsr' as const, id: 'decay' },
-          { type: 'adsr' as const, id: 'release' },
-          { type: 'adsr' as const, id: 'sustain' },
-        ];
+        // Different cycling orders based on layout
+        if (state.layout === '1+3') {
+          // 1+3 Layout: attack -> decay -> sustain -> release
+          items = [
+            { type: 'adsr' as const, id: 'attack' },
+            { type: 'adsr' as const, id: 'decay' },
+            { type: 'adsr' as const, id: 'sustain' },
+            { type: 'adsr' as const, id: 'release' },
+          ];
+        } else {
+          // 2x2 Layout: attack -> decay -> release -> sustain
+          items = [
+            { type: 'adsr' as const, id: 'attack' },
+            { type: 'adsr' as const, id: 'decay' },
+            { type: 'adsr' as const, id: 'release' },
+            { type: 'adsr' as const, id: 'sustain' },
+          ];
+        }
       }
 
       if (items.length === 0) return null;
