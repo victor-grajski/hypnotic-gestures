@@ -236,6 +236,7 @@ Edit `src/engine/AudioEngine.ts` to customize instrument patterns, sounds, and e
 
 ## 🚀 Future Enhancements
 
+- **Panel Carousel**: Allow for more panels by making second row scrollable with gestures
 - **Pattern Recording**: Save and replay gesture settings
 - **More Instruments**: Expand the instrument library
 - **Sequencer**: Let musicians create custom sequences
