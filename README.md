@@ -1,6 +1,6 @@
 # 🎵 Hypnotic Gestures
 
-A gesture-controlled hypnotic techno music workstation built with React, TypeScript, Tailwind CSS, shadcn/ui, Google MediaPipe, and Tone.js. Control your beat with nothing but your hands!
+A gesture-controlled hypnotic techno music workstation built with React, TypeScript, Tailwind CSS, shadcn/ui, Google MediaPipe, and Tone.js.
 
 🌐 https://hypnotic-gestures.vercel.app
 
