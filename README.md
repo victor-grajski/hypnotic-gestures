@@ -1,22 +1,17 @@
 # 🎵 Hypnotic Gestures
 
-A gesture-controlled techno music sequencer built with React, TypeScript, MediaPipe, and Tone.js. Control your beat with nothing but your hands!
-
-![Hypnotic Gestures](https://img.shields.io/badge/status-MVP-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-blue)
+A gesture-controlled hypnotic techno music workstation built with React, TypeScript, Tailwind CSS, shadcn/ui, Google MediaPipe, and Tone.js. Control your beat with nothing but your hands!
 
 ## 🌟 Overview
 
-Hypnotic Gestures is an experimental music application that lets you control a techno beat sequencer using hand gestures detected through your webcam. It combines real-time computer vision (MediaPipe) with audio synthesis (Tone.js) to create an intuitive, hands-free music production experience.
+Hypnotic Gestures is an prototype music application that lets you control a hypnotic techno beat using hand gestures detected through your webcam. It combines real-time computer vision (MediaPipe) with audio synthesis (Tone.js) to create a (hopefully) intuitive, hands-free music production experience.
 
 ### Key Features
 
-- **Real-time Gesture Recognition**: Detects 7 different hand gestures using Google MediaPipe
-- **4-Track Sequencer**: Control Kick, Hi-Hat, Bass, and Lead instruments
-- **Audio Effects**: Reverb, Delay, and Filter effects with adjustable parameters
-- **Position-Based Controls**: Different actions based on hand position in the frame
+- **Real-time Gesture Recognition**: Detects 7 different hand gestures using Google MediaPipe: "Closed_Fist", "Open_Palm", "Pointing_Up", "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"
+- **4-Track Editor**: Toggle and control volume for Kick, Hi-Hat, Bass, and Lead instruments
+- **ADSR Envelope Control**: Shape the sound of each instrument with attack, decay, sustain, and release parameters
 - **Visual Feedback**: Live video feed with hand landmark tracking
-- **Dark Techno Theme**: Sleek, modern UI optimized for the techno aesthetic
 
 ## 🚀 Quick Start
 
@@ -30,7 +25,7 @@ Hypnotic Gestures is an experimental music application that lets you control a t
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/victor-grajski/hypnotic-gestures.git
 cd hypnotic-gestures
 
 # Install dependencies
@@ -44,62 +39,87 @@ Visit `http://localhost:5173` in your browser and grant webcam permissions when 
 
 ## 🖐️ Gesture Controls
 
-Hypnotic Gestures recognizes 7 different hand gestures. See [GESTURES.md](./GESTURES.md) for detailed documentation.
+Hypnotic Gestures recognizes 7 different hand gestures.
 
 ### Quick Reference
 
-| Gesture | Action | Position-Based |
+| Gesture | Layer 1 | Layer 2 |
 |---------|--------|----------------|
-| ✊ Closed Fist | Enter Panel (Layer 1) | - |
-| 🖐️ Open Palm | Adjust Values (Layer 2) | Left = Decrease, Right = Increase |
-| ☝️ Pointing Up | Navigate | Left = Previous, Right = Next |
-| 👍 Thumbs Up | Play | - |
-| 👎 Thumbs Down | Pause | - |
-| ✌️ Victory | Return to Layer 1 | - |
-| 🤟 ILoveYou | Toggle Item On/Off (Layer 2) | - |
+| ✊ Closed Fist | Enter Panel | - |
+| 🖐️ Open Palm | - | Adjust Values (Left = Decrease, Right = Increase) |
+| ☝️ Pointing Up | Previous/Next Panel (Left = Previous, Right = Next) | Previous/Next Item (Left = Previous, Right = Next) |
+| 👍 Thumbs Up | Play | Play |
+| 👎 Thumbs Down | Pause | Pause |
+| ✌️ Victory | - | Return to Layer 1 |
+| 🤟 ILoveYou | Toggle Webcam Guide (Layer 1) | Toggle Item On/Off (Layer 2: Instruments Panel) |
 
-Press **G** to toggle the gesture guide overlay.
+You can also press **G** to toggle the gesture guide overlay.
 
 ## 🎹 Interface Layout
 
-The interface is divided into a 2×2 grid:
+The interface supports two layout modes that you can switch between:
+
+### Switching Layouts
+
+Press **C** to show/hide the config panel, then use the **Layout** dropdown to switch between:
+- **1+3 Grid**: Large webcam view with smaller panels below (default)
+- **2x2 Grid**: Equal-sized panels in a 2×2 grid
+
+### 1+3 Grid Layout
+
+The 1+3 grid features a large webcam view on top with three panels below:
+
+```
+┌───────────────────────────────────────┐
+│          Webcam View (Large)          │
+│          + Landmarks                  │
+│          + Gesture Info               │
+│                                       │
+├─────────────┬─────────────┬───────────┤
+│  Control    │ Instruments │   ADSR    │
+│  Panel      │   Panel     │  Envelope │
+└─────────────┴─────────────┴───────────┘
+```
+
+### 2x2 Grid Layout
+
+The 2x2 grid divides the interface into four equal quadrants:
 
 ```
 ┌──────────────────┬──────────────────┐
 │  Webcam View     │  Control Panel   │
 │  + Landmarks     │  + Play/Pause    │
 │  + Gesture Info  │  + Volume/Tempo  │
-│                  │  + Lock/Record   │
+│                  │                  │
 ├──────────────────┼──────────────────┤
-│  Instruments     │  Effects         │
-│  + Kick Drum     │  + Reverb        │
-│  + Hi-Hat        │  + Delay         │
-│  + Bass Synth    │  + Filter        │
-│  + Lead Synth    │                  │
+│  Instruments     │  ADSR Envelope   │
+│  + Kick Drum     │  + Attack        │
+│  + Hi-Hat        │  + Decay         │
+│  + Bass Synth    │  + Sustain       │
+│  + Lead Synth    │  + Release       │
 └──────────────────┴──────────────────┘
 ```
 
-### Control Panel (Top Right)
-- **Play/Pause**: Start or stop the sequencer
+### Control Panel
+- **Play/Pause**: Start or stop the track
 - **Master Volume**: Control overall output level
 - **Tempo**: Adjust BPM (80-180)
-- **Lock**: Prevent accidental gesture triggers
-- **Record**: Visual indicator (MVP - not functional yet)
-- **Status Info**: Track what's active
 
-### Instruments Panel (Bottom Left)
+### Instruments Panel
 - **4 Instruments**: Kick, Hi-Hat, Bass, Lead
 - Each instrument has:
   - On/Off toggle
   - Volume control
   - Selection indicator
 
-### Effects Panel (Bottom Right)
-- **3 Effects**: Reverb, Delay, Filter
-- Each effect has:
-  - On/Off toggle
-  - Parameter controls (wet/dry, time, feedback, etc.)
-  - Selection indicator
+### ADSR Panel
+- **ADSR Envelope Editor**: Control the sound envelope for each instrument
+- Edit envelope parameters for the selected instrument:
+  - Attack: How quickly the sound reaches peak volume
+  - Decay: How quickly it drops to sustain level
+  - Sustain: The held volume level
+  - Release: How quickly the sound fades after note release
+- Select an instrument first to edit its ADSR envelope
 
 ## 🎮 How to Use
 
@@ -108,11 +128,11 @@ The interface is divided into a 2×2 grid:
 3. **Position Your Hand**: Keep your hand visible in the webcam frame
 4. **Start Making Music**:
    - Use **thumbs up** to start playback
-   - Use **pointing up left/right** to navigate between panels (Control, Instruments, Effects)
+   - Use **pointing up left/right** to navigate between panels (Control, Instruments, ADSR)
    - Make a **closed fist** to enter the selected panel
    - Use **pointing up left/right** again to navigate between items in the panel
    - Use **ILoveYou gesture** 🤟 to toggle the selected item on/off
-   - Use **open palm left/right** to adjust volume or effect parameters
+   - Use **open palm left/right** to adjust volume or ADSR parameters
    - Use **victory** ✌️ gesture to return to Layer 1 (panel selection)
 
 ### Tips for Best Results
@@ -120,8 +140,8 @@ The interface is divided into a 2×2 grid:
 - Keep your hand at a comfortable distance from the camera
 - Ensure good lighting for better gesture detection
 - Hold gestures steady for ~0.5 seconds for reliable recognition
-- Use the guide overlay (press G) to see position zones
-- Lock the interface when you want to prevent accidental triggers
+- Use the guide overlay to see position zones
+- The interface also supports clicking behavior
 
 ## 🏗️ Technical Architecture
 
@@ -130,7 +150,8 @@ The interface is divided into a 2×2 grid:
 - **Frontend Framework**: React 18 + TypeScript + Vite
 - **Gesture Recognition**: Google MediaPipe Gesture Recognizer
 - **Audio Engine**: Tone.js
-- **Styling**: Tailwind CSS with custom dark theme
+- **Component Library**: shadcn/ui
+- **Styling**: Tailwind CSS with custom theme
 - **State Management**: React Context + useReducer
 
 ### Project Structure
@@ -141,7 +162,9 @@ src/
 │   ├── WebcamViewer.tsx
 │   ├── ControlPanel.tsx
 │   ├── InstrumentPanel.tsx
-│   └── EffectsPanel.tsx
+│   ├── ADSRPanel.tsx
+│   ├── ConfigPanel.tsx
+│   └── MinimumScreenSizeOverlay.tsx
 ├── context/            # State management
 │   └── AppContext.tsx
 ├── engine/             # Core logic
@@ -166,7 +189,23 @@ src/
 
 ## 🔧 Configuration
 
-### Gesture Sensitivity
+### Gesture Debounce Timing (Adjustable via UI)
+
+Press **C** to show the config panel, which exposes real-time debounce timing controls for each gesture:
+
+- **👆 Pointing Up** (navigate/cycle between panels/items)
+- **✊ Closed Fist** (enter panel)
+- **✋ Open Palm** (adjust values)
+- **👎 Thumb Down** (pause)
+- **👍 Thumb Up** (play)
+- **✌️ Victory** (go back to Layer 1)
+- **🤟 I Love You** (toggle items)
+
+Each gesture can be configured independently with debounce times from 100ms to 2000ms. This allows you to fine-tune responsiveness vs. accidental trigger prevention for your specific use case.
+
+**Note**: Changes made in the config panel are not persisted between sessions. Once you find your preferred settings, edit the default values in `src/context/AppContext.tsx` to make them permanent.
+
+### Gesture Sensitivity (Code)
 
 Edit `src/hooks/useGestureRecognition.ts`:
 
@@ -174,14 +213,6 @@ Edit `src/hooks/useGestureRecognition.ts`:
 minHandDetectionConfidence: 0.5,  // Lower = more sensitive
 minHandPresenceConfidence: 0.5,
 minTrackingConfidence: 0.5,
-```
-
-### Debounce Timing
-
-Edit `src/engine/GestureHandler.ts`:
-
-```typescript
-constructor(debounceMs: number = 500) { // Adjust timing
 ```
 
 ### Audio Patterns
@@ -192,54 +223,32 @@ Edit `src/engine/AudioEngine.ts` to customize instrument patterns, sounds, and e
 
 - **MVP Status**: This is a minimum viable product with room for improvement
 - **Gesture Stability**: Requires steady hand movements for reliable detection
-- **Browser Support**: Best performance in Chrome/Edge (WebGL + MediaPipe)
+- **Browser Support**: Best performance in Chrome (WebGL + MediaPipe). Safari and Firefox are also supported
 - **Lighting Sensitivity**: Poor lighting can affect gesture recognition
-- **Recording Feature**: Visual indicator only - actual recording not implemented
 
 ## 🚀 Future Enhancements
 
-- **Pattern Recording**: Save and replay gesture sequences
+- **Pattern Recording**: Save and replay gesture settings
 - **More Instruments**: Expand the instrument library
-- **Custom Patterns**: Let users create custom rhythm patterns
-- **MIDI Output**: Export patterns to DAWs
+- **Sequencer**: Let musicians create custom sequences
 - **Multi-Hand Support**: Use both hands for more complex control
+- **Pose and Face Support**: Unlock further expression with multimodal input
+- **VCV Rack Integration**: Load and control plugins via gesture
+- **Effects Support**: Toggle and tweak effects like Filter and Chorus via gesture
 - **Preset System**: Save and load configurations
-- **Mobile Support**: Touch-based fallback for mobile devices
-- **Performance Mode**: Fullscreen mode for live performances
+- **Mobile Support**: Mobile-friendly layout + touch-based fallback for mobile devices
+- **MIDI Output**: Export patterns to DAWs
 
-## 🤝 Contributing
-
-This is an experimental project. Feel free to fork, experiment, and submit pull requests!
-
-### Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run dev server with hot reload
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Type checking
-npm run type-check
-```
-
-## 📜 License
-
-MIT License - feel free to use this project for learning, experimentation, or building something amazing!
 
 ## 🙏 Acknowledgments
 
-- [Google MediaPipe](https://mediapipe.dev/) for gesture recognition
+- [Google MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer) for gesture recognition
 - [Tone.js](https://tonejs.github.io/) for web audio synthesis
 - [React](https://react.dev/) + [Vite](https://vitejs.dev/) for the development experience
 - [Tailwind CSS](https://tailwindcss.com/) for styling
+- [shadcn/ui](https://ui.shadcn.com/) for component primitives
+- Last but not least, [Kaz Saegusa](https://kazsaegusa.com/) and [Charles Yust](https://www.frog.co/authors/charles-yust) at frog for the prompt that sparked all this!
+
 
 ## 📞 Support
 
@@ -247,9 +256,9 @@ If you encounter issues:
 
 1. Check that your browser supports WebGL and MediaStream API
 2. Ensure webcam permissions are granted
-3. Try a different browser (Chrome/Edge recommended)
+3. Try a different browser (Chrome recommended)
 4. Check the browser console for error messages
 
 ---
 
-**Built with ❤️ for the intersection of music, code, and gesture control**
+**Built with ❤️ for the intersection of music and AI**
