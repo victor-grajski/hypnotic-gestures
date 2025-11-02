@@ -1,10 +1,14 @@
 # 🎵 Hypnotic Gestures
 
+https://hypnotic-gestures.vercel.app
+
 A gesture-controlled hypnotic techno music workstation built with React, TypeScript, Tailwind CSS, shadcn/ui, Google MediaPipe, and Tone.js. Control your beat with nothing but your hands!
 
 ## 🌟 Overview
 
 Hypnotic Gestures is an prototype music application that lets you control a hypnotic techno beat using hand gestures detected through your webcam. It combines real-time computer vision (MediaPipe) with audio synthesis (Tone.js) to create a (hopefully) intuitive, hands-free music production experience.
+
+For more on my process to get to this point, check out [PROCESS.md](https://github.com/victor-grajski/hypnotic-gestures/blob/main/PROCESS.md)!
 
 ### Key Features
 
