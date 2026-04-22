@@ -1,0 +1,40 @@
+/* Custom slider styles */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: oklch(58% 0.12 187);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 10px oklch(58% 0.12 187);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: oklch(58% 0.12 187);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 10px oklch(58% 0.12 187);
+}
+
+.slider:disabled::-webkit-slider-thumb {
+  background: oklch(65% 0.01 200);
+  cursor: not-allowed;
+}
+
+.slider:disabled::-moz-range-thumb {
+  background: oklch(65% 0.01 200);
+  cursor: not-allowed;
+}

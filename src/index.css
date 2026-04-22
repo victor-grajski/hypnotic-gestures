@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  --color-border: oklch(30% 0.01 200);
+  --color-input: oklch(20% 0.01 200);
+  --color-ring: oklch(58% 0.12 187);
+  --color-background: oklch(12% 0.01 200);
+  --color-foreground: oklch(98% 0 0);
+  --color-primary: oklch(58% 0.12 187);
+  --color-primary-foreground: oklch(98% 0 0);
+  --color-secondary: oklch(20% 0.01 200);
+  --color-secondary-foreground: oklch(98% 0 0);
+  --color-destructive: oklch(45% 0.18 25);
+  --color-destructive-foreground: oklch(98% 0 0);
+  --color-muted: oklch(20% 0.01 200);
+  --color-muted-foreground: oklch(65% 0.01 200);
+  --color-accent: oklch(25% 0.02 187);
+  --color-accent-foreground: oklch(98% 0 0);
+  --color-popover: oklch(12% 0.01 200);
+  --color-popover-foreground: oklch(98% 0 0);
+  --color-card: oklch(15% 0.01 200);
+  --color-card-foreground: oklch(98% 0 0);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Courier New', 'Monaco', 'Consolas', 'Liberation Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1rem;
+  height: 100vh;
+  padding: 1rem;
+}
+
+.grid-1plus3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr;
+  gap: 1rem;
+}
+
+.grid-1plus3 > :first-child {
+  grid-column: 1 / 4;
+  grid-row: 1;
+  justify-self: center;
+  width: 50%;
+}
+
+.grid-1plus3 > :nth-child(2) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.grid-1plus3 > :nth-child(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.grid-1plus3 > :nth-child(4) {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+/* Custom slider styles */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: oklch(58% 0.12 187);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 10px oklch(58% 0.12 187);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: oklch(58% 0.12 187);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 10px oklch(58% 0.12 187);
+}
+
+.slider:disabled::-webkit-slider-thumb {
+  background: oklch(65% 0.01 200);
+  cursor: not-allowed;
+}
+
+.slider:disabled::-moz-range-thumb {
+  background: oklch(65% 0.01 200);
+  cursor: not-allowed;
+}
