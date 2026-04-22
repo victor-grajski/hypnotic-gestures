@@ -256,7 +256,6 @@ Edit `src/engine/AudioEngine.ts` to customize instrument patterns, sounds, and e
 - [React](https://react.dev/) + [Vite](https://vitejs.dev/) for the development experience
 - [Tailwind CSS](https://tailwindcss.com/) for styling
 - [shadcn/ui](https://ui.shadcn.com/) for component primitives
-- Last but not least, [Kaz Saegusa](https://kazsaegusa.com/) and [Charles Yust](https://www.frog.co/authors/charles-yust) at frog for the prompt that sparked all this!
 
 
 ## 📞 Support
